@@ -102,7 +102,7 @@ function GalleryPage() {
             <div className="px-4 py-3 bg-gray-50 border-t">
               <button
                 onClick={() => setSelectedGallery(gallery)}
-                className="text-sm text-primary hover:text-secondary font-medium"
+                className="text-sm text-primary font-medium"
               >
                 View All Images
               </button>
