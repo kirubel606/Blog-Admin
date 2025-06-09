@@ -67,7 +67,7 @@ function EventsPage() {
         </div>
         <button
           onClick={() => setShowEventForm(true)}
-          className="mt-4 sm:mt-0 bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
+          className="mt-4 sm:mt-0 bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
         >
           <Plus className="w-5 h-5" />
           <span>Create Event</span>
