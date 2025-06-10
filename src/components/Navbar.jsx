@@ -19,13 +19,20 @@ function Navbar({ user, onLogout, onToggleSidebar }) {
   }, [])
 
   const getInitials = (name) => {
-    return name
+    if (!name || typeof name !== "string") return ""
+  
+    // If it's an email, extract the part before "@"
+    const cleanName = name.includes("@") ? name.split("@")[0] : name
+  
+    return cleanName
       .split(" ")
+      .filter(Boolean) // remove empty strings
       .map((word) => word[0])
       .join("")
       .toUpperCase()
       .slice(0, 2)
   }
+  
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-30">

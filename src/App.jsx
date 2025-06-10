@@ -3,26 +3,16 @@
 import { useState } from "react"
 import LoginPage from "./components/LoginPage.jsx"
 import Dashboard from "./components/Dashboard.jsx"
+import { useAuth } from "./context/AuthContext.jsx" // adjust path
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [user, setUser] = useState(null)
-
-  const handleLogin = (userData) => {
-    setIsAuthenticated(true)
-    setUser(userData)
-  }
-
-  const handleLogout = () => {
-    setIsAuthenticated(false)
-    setUser(null)
-  }
+  const {logout,isAuthenticated,user} = useAuth()
 
   if (!isAuthenticated) {
-    return <LoginPage onLogin={handleLogin} />
+    return <LoginPage />
   }
 
-  return <Dashboard user={user} onLogout={handleLogout} />
+  return <Dashboard user={user} onLogout={logout}/>
 }
 
 export default App
