@@ -35,10 +35,10 @@ function Sidebar({ isOpen, onToggle, currentPage, onPageChange }) {
       <div className="flex items-center justify-between p-4 border-b border-white/10">
         {isOpen && (
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-white  rounded-lg flex items-center justify-center">
               <img src="/logo.png" alt="Logo" className="w-6 h-6 object-contain" />
             </div>
-            <span className="font-bold text-lg">AdminHub</span>
+            <span className="font-bold text-gray-900 text-lg">AdminHub</span>
           </div>
         )}
         <button onClick={onToggle} className="p-2 rounded-lg hover:bg-white/10 transition-colors">
