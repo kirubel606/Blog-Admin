@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react"
-import {jwtDecode} from "jwt-decode"
+import { jwtDecode } from "jwt-decode"
 
-// Pull backend base URL from env
 const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL
 const AuthContext = createContext()
 
@@ -9,37 +8,63 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [accessToken, setAccessToken] = useState(null)
   const [refreshToken, setRefreshToken] = useState(null)
-
-  // Auto-refresh interval reference
   const [refreshTimer, setRefreshTimer] = useState(null)
 
-  // Helper: refresh the access token
-  const refreshAccessToken = async () => {
+  // Restore tokens from localStorage on mount
+  useEffect(() => {
+    const storedAccess = localStorage.getItem("accessToken")
+    const storedRefresh = localStorage.getItem("refreshToken")
+
+    if (storedAccess && storedRefresh) {
+      try {
+        const decoded = jwtDecode(storedAccess)
+        if (decoded.exp * 1000 > Date.now()) {
+          setAccessToken(storedAccess)
+          setRefreshToken(storedRefresh)
+          setUser({ email: decoded.email, name: decoded.username, role: decoded.role })
+          scheduleTokenRefresh(storedAccess)
+        } else {
+          // Access token expired, try refresh
+          setRefreshToken(storedRefresh)
+          refreshAccessToken(storedRefresh)
+        }
+      } catch {
+        logout()
+      }
+    }
+  }, [])
+
+  const refreshAccessToken = async (refreshOverride) => {
+    const refresh = refreshOverride || refreshToken
     try {
       const res = await fetch(`${BACKEND_BASE_URL}/api/users/user/token/refresh/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ refresh: refreshToken }),
+        body: JSON.stringify({ refresh }),
       })
       const data = await res.json()
-      setAccessToken(data.access)
-      const decoded = jwtDecode(data.access)
-      setUser({ email: decoded.email, role: decoded.role }) // adjust to your payload
-      scheduleTokenRefresh(data.access)
-    } catch (err) {
+      if (data.access) {
+        setAccessToken(data.access)
+        localStorage.setItem("accessToken", data.access)
+        const decoded = jwtDecode(data.access)
+        setUser({ email: decoded.email, name: decoded.username, role: decoded.role })
+        scheduleTokenRefresh(data.access)
+      } else {
+        logout()
+      }
+    } catch {
       logout()
     }
   }
 
-  // Schedule token refresh before expiry
   const scheduleTokenRefresh = (token) => {
     const decoded = jwtDecode(token)
     const expTime = decoded.exp * 1000
     const currentTime = Date.now()
-    const delay = expTime - currentTime - 60000 // refresh 1 min before expiry
+    const delay = expTime - currentTime - 60000
 
     if (refreshTimer) clearTimeout(refreshTimer)
-    const timer = setTimeout(refreshAccessToken, delay)
+    const timer = setTimeout(() => refreshAccessToken(), delay)
     setRefreshTimer(timer)
   }
 
@@ -56,8 +81,11 @@ export function AuthProvider({ children }) {
     setAccessToken(data.access)
     setRefreshToken(data.refresh)
 
+    localStorage.setItem("accessToken", data.access)
+    localStorage.setItem("refreshToken", data.refresh)
+
     const decoded = jwtDecode(data.access)
-    setUser({ email: decoded.email, role: decoded.role })
+    setUser({ email: decoded.email, name: decoded.username, role: decoded.role })
 
     scheduleTokenRefresh(data.access)
   }
@@ -66,6 +94,8 @@ export function AuthProvider({ children }) {
     setUser(null)
     setAccessToken(null)
     setRefreshToken(null)
+    localStorage.removeItem("accessToken")
+    localStorage.removeItem("refreshToken")
     if (refreshTimer) clearTimeout(refreshTimer)
   }
 

@@ -29,7 +29,7 @@ const menuItems = [
 function Sidebar({ isOpen, onToggle, currentPage, onPageChange }) {
   return (
     <div
-      className={`fixed left-0 top-0 h-full bg-gradient-to-b from-secondary to-[#2a2d7a] text-white transition-all duration-300 z-40 ${isOpen ? "w-64" : "w-16"}`}
+      className={`fixed left-0 top-0 h-full bg-[#2a2d7a] text-white transition-all duration-300 z-40 ${isOpen ? "w-64" : "w-16"}`}
     >
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-white/10">
@@ -38,7 +38,7 @@ function Sidebar({ isOpen, onToggle, currentPage, onPageChange }) {
             <div className="w-8 h-8 bg-white  rounded-lg flex items-center justify-center">
               <img src="/logo.png" alt="Logo" className="w-6 h-6 object-contain" />
             </div>
-            <span className="font-bold text-gray-900 text-lg">AdminHub</span>
+            <span className="font-bold text-white text-lg">AdminHub</span>
           </div>
         )}
         <button onClick={onToggle} className="p-2 rounded-lg hover:bg-white/10 transition-colors">
@@ -58,11 +58,11 @@ function Sidebar({ isOpen, onToggle, currentPage, onPageChange }) {
                 <button
                   onClick={() => onPageChange(item.label)}
                   className={`w-full flex items-center space-x-3 px-3 py-3 rounded-xl transition-all duration-200 group ${
-                    isActive ? "bg-[#FF6B00] text-[#1a1d4e] shadow-lg" : "hover:bg-white/10 text-gray-900 hover:text-white"
+                    isActive ? "bg-[#FF6B00] text-[#1a1d4e] shadow-lg" : "hover:bg-white/10 text-white hover:text-white"
                   }`}
                   title={!isOpen ? item.label : ""}
                 >
-                  <Icon className={`w-5 h-5 ${isActive ? "text-[#1a1d4e]" : "text-gray-800 group-hover:text-white"}`} />
+                  <Icon className={`w-5 h-5 ${isActive ? "text-[#1a1d4e]" : "text-white group-hover:text-white"}`} />
                   {isOpen && <span className="font-medium">{item.label}</span>}
                 </button>
               </li>
