@@ -377,22 +377,22 @@ const handleSubmit = async (e) => {
                   setFormData(prev => ({ ...prev, content: data }))
                 }}
                 config={{
+                  // Explicit heading levels so Enter creates separate <h2>, <h3>, <h4> blocks
+                  heading: {
+                    options: [
+                      { model: 'paragraph', view: 'p',  title: 'Paragraph' },
+                      { model: 'heading2',  view: 'h2', title: 'Heading 2' },
+                      { model: 'heading3',  view: 'h3', title: 'Heading 3' },
+                      { model: 'heading4',  view: 'h4', title: 'Heading 4' },
+                    ]
+                  },
                   toolbar: [
-                    'heading',
-                    '|',
-                    'bold',
-                    'italic',
-                    'link',
-                    'bulletedList',
-                    'numberedList',
-                    '|',
-                    'outdent',
-                    'indent',
-                    '|',
-                    'blockQuote',
-                    'insertTable',
-                    'undo',
-                    'redo'
+                    'heading', '|',
+                    'bold', 'italic', 'link', '|',
+                    'bulletedList', 'numberedList', '|',
+                    'outdent', 'indent', '|',
+                    'blockQuote', '|',
+                    'undo', 'redo'
                   ],
                   placeholder: 'Write your article content here...',
                   height: '400px'
