@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { Plus, Search, Edit, Trash2, Eye, Calendar, User, Loader2, AlertCircle } from "lucide-react"
 import ArticleForm from "./ArticleForm"
 import { newsService } from "../services/newsService"
+const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
 function NewsPage() {
   const [articles, setArticles] = useState([])
@@ -136,7 +137,7 @@ function NewsPage() {
     }
     
     // Assuming your Django server serves media files
-    return `http://localhost:8000${imagePath}`
+    return BACKEND_BASE_URL+`${imagePath}`
   }
 
   return (

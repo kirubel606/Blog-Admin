@@ -25,9 +25,9 @@ export const newsService = {
 
   // Search news articles
   async searchNews(query) {
-    // GET {API_BASE_URL}/news/search/?q=<query>
+    // GET {API_BASE_URL}/news/search/?title=<query>
     const { data } = await axiosInstance.get("/news/search/", {
-      params: { q: query },
+      params: { title: query },
     })
     if (data.results?.result) return data.results.result
     if (Array.isArray(data)) return data
@@ -60,8 +60,8 @@ export const newsService = {
     payload.append("tags", formData.tags)
     payload.append("status", formData.status)
 
-    if (formData.hasVideo && formData.videoIframe) {
-      payload.append("video_iframe", formData.videoIframe)
+    if (formData.hasVideo && formData.iframe) {
+      payload.append("iframe", formData.iframe)
     }
     if (formData.cover_image) {
       payload.append("cover_image", formData.cover_image)
@@ -83,8 +83,8 @@ export const newsService = {
     payload.append("tags", formData.tags)
     payload.append("status", formData.status)
 
-    if (formData.hasVideo && formData.videoIframe) {
-      payload.append("video_iframe", formData.videoIframe)
+    if (formData.hasVideo && formData.iframe) {
+      payload.append("iframe", formData.iframe)
     }
     // only append cover_image if it's a new File
     if (formData.cover_image instanceof File) {

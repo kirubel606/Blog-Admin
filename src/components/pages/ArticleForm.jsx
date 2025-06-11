@@ -17,7 +17,7 @@ function ArticleForm({ article, onClose, onSubmit }) {
     tags: "",
     status: "draft",
     hasVideo: false,
-    videoIframe: ""
+    iframe: ""
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState(null)
@@ -53,7 +53,7 @@ function ArticleForm({ article, onClose, onSubmit }) {
         tags: Array.isArray(article.tags) ? article.tags.join(', ') : (article.tags || ""),
         status: article.status === "publish" ? "published" : (article.status || "draft"),
         hasVideo: !!article.iframe,
-        videoIframe: article.iframe || ""
+        iframe: article.iframe || ""
       })
     }
   }, [article])
@@ -268,8 +268,8 @@ const handleSubmit = async (e) => {
                   Video Embed Code
                 </label>
                 <textarea
-                  value={formData.videoIframe}
-                  onChange={(e) => setFormData(prev => ({ ...prev, videoIframe: e.target.value }))}
+                  value={formData.iframe}
+                  onChange={(e) => setFormData(prev => ({ ...prev, iframe: e.target.value }))}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                   placeholder="Paste your video embed iframe code here"
                   rows="3"
