@@ -48,7 +48,7 @@ function LoginPage({ onLogin }) {
             <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl mb-4 shadow-lg">
               <img src="/logo.png" alt="Logo" className="w-12 h-12 object-contain" />
             </div>
-            <h1 className="text-3xl font-bold text-secondary mb-2">Admin Portal</h1>
+            <h1 className="text-3xl font-bold text-primary mb-2">Admin Portal</h1>
             <p className="text-gray-600">Welcome back! Please sign in to continue.</p>
           </div>
 
@@ -100,7 +100,7 @@ function LoginPage({ onLogin }) {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-primary to-secondary text-white py-3 px-4 rounded-xl font-semibold hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              className="w-full bg-orange-400 text-white py-3 px-4 rounded-xl font-semibold hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             >
               {isLoading ? (
                 <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -116,7 +116,7 @@ function LoginPage({ onLogin }) {
           {/* Demo Credentials */}
           <div className="mt-6 p-4 bg-gray-50 rounded-xl">
             <p className="text-xs text-gray-600 text-center">
-              <strong>Demo:</strong> Use any email and password to login
+              <strong>Note:</strong> Use your username and password
             </p>
           </div>
         </div>
