@@ -48,6 +48,9 @@ export default function SettingsPage() {
   }
 
   const handleSave = async () => {
+    if (!isValidMapIframe(settings.map_link)) {
+      alert("Please paste a valid Google Maps iframe with width 400 and height 300 (medium size).")
+      return    }
     try {
       await axiosInstance.put(`${BACKEND_BASE_URL}/settings/${settings.id}/`, settings)
       alert("Settings updated successfully!")
