@@ -1,23 +1,80 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { X } from "lucide-react"
+import axios from "axios"
+const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
-function EventForm({ onClose, onSubmit }) {
+function EventForm({ event, onClose, onSubmit }) {
+  const [categories, setCategories] = useState([])
+  const [catLoading, setCatLoading] = useState(true)
   const [formData, setFormData] = useState({
     title: "",
     location: "",
     description: "",
-    category: "",
+    category: "",   // id or slug from API
     venue: "",
     video_link: "",
     image: null,
-    is_live: false
+    is_live: false,
+    start_date: "",  // user must select
+    end_date: "",    // user must select
+    type: "",
+    status: ""
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState(null)
 
-  const handleSubmit = (e) => {
+  // Load categories on mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await axios.get(`${BACKEND_BASE_URL}/categories/`)
+        setCategories(Array.isArray(res.data) ? res.data : [])
+      } catch (err) {
+        console.error("Error fetching categories:", err)
+        setCategories([])
+      } finally {
+        setCatLoading(false)
+      }
+    }
+    fetchCategories()
+  }, [])
+
+  // If event prop exists (edit mode), pre-fill formData
+  useEffect(() => {
+    if (event) {
+      setFormData({
+        title: event.title || "",
+        location: event.location || "",
+        description: event.description || "",
+        category: event.category || "",  // assuming category has id
+        venue: event.venue || "",
+        video_link: event.video_link || "",
+        image: event.image || null, // don't preload image file, only new upload
+        is_live: event.is_live || false,
+        start_date: event.start_date ? event.start_date.slice(0,16) : "", // datetime-local format
+        end_date: event.end_date ? event.end_date.slice(0,16) : "",
+        type: event.type || "",
+        status: event.status || "",
+      })
+    }
+  }, [event])
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    onSubmit(formData)
+    setIsSubmitting(true)
+    setError(null)
+
+    // You may want to validate formData here before submitting
+
+    try {
+      await onSubmit(formData)
+    } catch (err) {
+      setError("Something went wrong, please try again.")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleImageChange = (e) => {
@@ -35,7 +92,9 @@ function EventForm({ onClose, onSubmit }) {
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-2xl font-bold text-gray-900">Create New Event</h2>
+          <h2 className="text-2xl font-bold text-gray-900">
+            {event ? "Edit Event" : "Create New Event"}
+          </h2>
           <button
             onClick={onClose}
             className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
@@ -45,7 +104,7 @@ function EventForm({ onClose, onSubmit }) {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="p-6 space-y-6" encType="multipart/form-data">
           {/* Title */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -96,18 +155,57 @@ function EventForm({ onClose, onSubmit }) {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Category
             </label>
+            {catLoading ? (
+              <p>Loading categories...</p>
+            ) : (
+              <select
+                value={formData.category}
+                onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
+                required
+              >
+                <option value="">Select a category</option>
+                {categories.map(cat => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+
+          {/* Type */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Type
+            </label>
             <select
-              value={formData.category}
-              onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+              value={formData.type}
+              onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value }))}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
               required
             >
-              <option value="">Select a category</option>
+              <option value="">Select event type</option>
               <option value="conference">Conference</option>
+              <option value="webinar">Webinar</option>
               <option value="workshop">Workshop</option>
-              <option value="seminar">Seminar</option>
-              <option value="concert">Concert</option>
-              <option value="exhibition">Exhibition</option>
+            </select>
+          </div>
+
+          {/* Status */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Status
+            </label>
+            <select
+              value={formData.status}
+              onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value }))}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
+              required
+            >
+              <option value="">Select event status</option>
+              <option value="upcoming">Upcoming</option>
+              <option value="cancelled">Cancelled</option>
             </select>
           </div>
 
@@ -140,6 +238,34 @@ function EventForm({ onClose, onSubmit }) {
             />
           </div>
 
+          {/* Start Date */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Start Date & Time
+            </label>
+            <input
+              type="datetime-local"
+              value={formData.start_date}
+              onChange={(e) => setFormData(prev => ({ ...prev, start_date: e.target.value }))}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
+              required
+            />
+          </div>
+
+          {/* End Date */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              End Date & Time
+            </label>
+            <input
+              type="datetime-local"
+              value={formData.end_date}
+              onChange={(e) => setFormData(prev => ({ ...prev, end_date: e.target.value }))}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
+              required
+            />
+          </div>
+
           {/* Event Image */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -154,14 +280,18 @@ function EventForm({ onClose, onSubmit }) {
                   file:mr-4 file:py-2 file:px-4
                   file:rounded-lg file:border-0
                   file:text-sm file:font-semibold
-                  file:bg-secondary file:text-white
+                  file:bg-primary file:text-white
                   hover:file:bg-secondary/80"
-                required
+                {...(!event && { required: true })} 
               />
               {formData.image && (
                 <div className="mt-2 relative inline-block">
                   <img
-                    src={URL.createObjectURL(formData.image)}
+                    src={
+                      typeof formData.image === "string"
+                        ? formData.image // For existing image URL (edit mode)
+                        : URL.createObjectURL(formData.image) // For new uploads
+                    }
                     alt="Event preview"
                     className="h-32 w-auto object-cover rounded-lg"
                   />
@@ -191,6 +321,11 @@ function EventForm({ onClose, onSubmit }) {
             </label>
           </div>
 
+          {/* Error Message */}
+          {error && (
+            <p className="text-red-600 text-center">{error}</p>
+          )}
+
           {/* Actions */}
           <div className="flex justify-end space-x-4 pt-6 border-t">
             <button
@@ -202,9 +337,10 @@ function EventForm({ onClose, onSubmit }) {
             </button>
             <button
               type="submit"
-              className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-colors"
+              disabled={isSubmitting}
+              className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-colors disabled:opacity-50"
             >
-              Create Event
+              {isSubmitting ? "Saving..." : (event ? "Update Event" : "Create Event")}
             </button>
           </div>
         </form>
@@ -213,4 +349,4 @@ function EventForm({ onClose, onSubmit }) {
   )
 }
 
-export default EventForm 
+export default EventForm

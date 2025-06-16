@@ -1,8 +1,11 @@
 "use client"
 
-import { useState } from "react"
-import { Plus, Calendar, MapPin, Users, Clock, Filter } from "lucide-react"
+import { useState,useEffect } from "react"
+import { Plus, Calendar, MapPin, Users, Clock, Filter,AlertCircle ,Search,Edit,Trash2,Eye,Loader2,User} from "lucide-react"
 import EventForm from "./EventForm"
+import { eventService } from "../services/eventService"
+import {formatDate,formatTime} from "../services/formatdate"
+const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
 const events = [
   {
@@ -41,6 +44,10 @@ const events = [
 ]
 
 function EventsPage() {
+  const [events, setEvents] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [editingEvent, setEditingEvent] = useState(null)
   const [selectedType, setSelectedType] = useState("All")
   const [selectedStatus, setSelectedStatus] = useState("All")
   const [showEventForm, setShowEventForm] = useState(false)
@@ -50,15 +57,99 @@ function EventsPage() {
     const matchesStatus = selectedStatus === "All" || event.status === selectedStatus
     return matchesType && matchesStatus
   })
+  // Load articles on component mount
+  useEffect(() => {
+    loadEvents()
+  }, [])
+  
+  
+    const loadEvents = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const data = await eventService.getAllevent()
+        // Ensure we always have an array
+        setEvents(Array.isArray(data) ? data : [])
+      } catch (error) {
+        console.error('Failed to load events:', error)
+        setError('Failed to load events. Please try again.')
+        setEvents([]) // Set empty array on error
+      } finally {
+        setLoading(false)
+      }
+    }
 
-  const handleEventSubmit = (formData) => {
-    // Handle form submission
-    console.log(formData)
-    setShowEventForm(false)
-  }
+
+    const handleEventSubmit = async (formData) => {
+      try {
+        setError(null)
+        
+        if (editingEvent) {
+          // Update existing article
+          await eventService.updateEvent(editingEvent.id, formData)
+        } else {
+          // Create new article
+          await eventService.createEvent(formData)
+        }
+        
+        // Reload articles and close form
+        await loadEvents()
+        setShowEventForm(false)
+        setEditingEvent(null)
+      } catch (error) {
+        console.error('Failed to save event:', error)
+        setError('Failed to save event. Please try again.')
+      }
+    }
+  
+    const handleEditEvent = async (event) => {
+      try {
+        setError(null)
+        // Get full article details
+        const fullEvent = await eventService.geteventDetail(event.id)
+        setEditingEvent(fullEvent)
+        setShowEventForm(true)
+      } catch (error) {
+        console.error('Failed to load article details:', error)
+        setError('Failed to load article details. Please try again.')
+      }
+    }
+  
+    const handleDeleteEvent = async (eventId) => {
+      if (!window.confirm('Are you sure you want to delete this event?')) {
+        return
+      }
+  
+      try {
+        setError(null)
+        await eventService.deleteEvent(eventId)
+        // Remove article from state
+        setArticles(prev => prev.filter(event => event.id !== eventId))
+      } catch (error) {
+        console.error('Failed to delete article:', error)
+        setError('Failed to delete article. Please try again.')
+      }
+    }
+
 
   return (
     <div className="space-y-6">
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start space-x-3">
+          <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+          <div>
+            <h3 className="text-sm font-medium text-red-800">Error</h3>
+            <p className="text-sm text-red-700 mt-1">{error}</p>
+            <button
+              onClick={loadEvents}
+              className="text-sm text-red-800 underline hover:text-red-900 mt-2"
+            >
+              Try again
+            </button>
+          </div>
+        </div>
+      )}
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -84,9 +175,9 @@ function EventsPage() {
             className="px-4 py-2 border text-gray-900 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
           >
             <option value="All">All Types</option>
-            <option value="Conference">Conference</option>
-            <option value="Webinar">Webinar</option>
-            <option value="Workshop">Workshop</option>
+            <option value="conference">Conference</option>
+            <option value="webinar">Webinar</option>
+            <option value="workshop">Workshop</option>
           </select>
           <select
             value={selectedStatus}
@@ -94,9 +185,9 @@ function EventsPage() {
             className="px-4 py-2 border text-gray-900 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
           >
             <option value="All">All Status</option>
-            <option value="Upcoming">Upcoming</option>
-            <option value="Completed">Completed</option>
-            <option value="Cancelled">Cancelled</option>
+            <option value="upcoming">Upcoming</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
           </select>
         </div>
       </div>
@@ -127,16 +218,16 @@ function EventsPage() {
               </div>
 
               <h3 className="text-xl font-semibold text-gray-900 mb-3">{event.title}</h3>
-              <p className="text-gray-600 text-sm mb-4">{event.description}</p>
+              <p className="text-gray-600 text-sm mb-4">{event.description.length > 90? `${event.description.slice(0, 90)}...`: event.description}</p>
 
               <div className="space-y-2">
                 <div className="flex items-center space-x-2 text-sm text-gray-600">
                   <Calendar className="w-4 h-4" />
-                  <span>{event.date}</span>
+                  <span>{formatDate(event.timestamp)}</span>
                 </div>
                 <div className="flex items-center space-x-2 text-sm text-gray-600">
                   <Clock className="w-4 h-4" />
-                  <span>{event.time}</span>
+                  <span>{formatTime(event.timestamp)}</span>
                 </div>
                 <div className="flex items-center space-x-2 text-sm text-gray-600">
                   <MapPin className="w-4 h-4" />
@@ -149,11 +240,11 @@ function EventsPage() {
               </div>
 
               <div className="mt-6 flex space-x-2">
-                <button className="flex-1 bg-primary text-white py-2 px-4 rounded-lg font-medium hover:bg-orange-600 transition-colors">
+                <button onClick={() => handleEditEvent(event)} className="flex-1 bg-primary text-white py-2 px-4 rounded-lg font-medium hover:bg-orange-600 transition-colors">
                   Edit Event
                 </button>
-                <button className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
-                  View Details
+                <button onClick={() => handleDeleteEvent(event.id)} className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                  Delete
                 </button>
               </div>
             </div>
@@ -164,7 +255,11 @@ function EventsPage() {
       {/* Event Form Modal */}
       {showEventForm && (
         <EventForm
-          onClose={() => setShowEventForm(false)}
+          event={editingEvent}
+          onClose={() => {
+            setShowEventForm(false)
+            setEditingEvent(null)
+          }}
           onSubmit={handleEventSubmit}
         />
       )}
