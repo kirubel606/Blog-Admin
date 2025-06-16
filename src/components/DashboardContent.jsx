@@ -19,9 +19,8 @@ function DashboardContent() {
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-secondary to-primary rounded-2xl p-6 text-white">
-        <h1 className="text-3xl font-bold mb-2">Welcome back, Admin!</h1>
-        <p className="text-white/80">Here's what's happening with your website today.</p>
+      <div className=" rounded-2xl p-6 text-gry-900">
+        <h1 className="text-3xl font-bold mb-2">Welcome back!</h1>
       </div>
 
       {/* Stats Grid */}

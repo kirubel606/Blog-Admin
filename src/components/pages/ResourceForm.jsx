@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { X } from "lucide-react"
+import axios from "axios"
 
 const CLASSIFICATION_OPTIONS = [
   { value: "publication", label: "Publication" },
@@ -9,8 +10,13 @@ const CLASSIFICATION_OPTIONS = [
   { value: "case_study", label: "Case Study" },
   { value: "development", label: "Development" },
 ]
+const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
-function ResourceForm({ onClose, onSubmit, categories = [] }) {
+function ResourceForm({ Resource = null, onClose, onSubmit }) {
+
+
+  const [categories, setCategories] = useState([])
+  const [catLoading, setCatLoading] = useState(true)
   const [formData, setFormData] = useState({
     title: "",
     author: "",
@@ -21,6 +27,37 @@ function ResourceForm({ onClose, onSubmit, categories = [] }) {
     tags: "",
     classification: "publication"
   })
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await axios.get(`${BACKEND_BASE_URL}/categories/`)
+        setCategories(Array.isArray(res.data) ? res.data : [])
+      } catch (err) {
+        console.error("Error fetching categories:", err)
+        setCategories([])
+      } finally {
+        setCatLoading(false)
+      }
+    }
+    fetchCategories()
+  }, [])
+  console.log("categories passed are:",categories)
+
+
+  useEffect(() => {
+    if (Resource) {
+      setFormData({
+        title: Resource.title || "",
+        author: Resource.author || "",
+        published_at: Resource.published_at || "",
+        publisher: Resource.publisher || Resource.plublisher || "",
+        link: Resource.link || "",
+        category: Resource.category || "",
+        tags: Resource.tags || "",
+        classification: Resource.classification || "publication"
+      })
+    }
+  }, [Resource])
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -32,7 +69,9 @@ function ResourceForm({ onClose, onSubmit, categories = [] }) {
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-2xl font-bold text-gray-900">Add New Resource</h2>
+          <h2 className="text-2xl font-bold text-gray-900">
+            {Resource ? "Edit Resource" : "Add New Resource"}
+          </h2>
           <button
             onClick={onClose}
             className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
@@ -45,9 +84,7 @@ function ResourceForm({ onClose, onSubmit, categories = [] }) {
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Title */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Title
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
             <input
               type="text"
               value={formData.title}
@@ -60,9 +97,7 @@ function ResourceForm({ onClose, onSubmit, categories = [] }) {
 
           {/* Author */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Author
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Author</label>
             <input
               type="text"
               value={formData.author}
@@ -75,9 +110,7 @@ function ResourceForm({ onClose, onSubmit, categories = [] }) {
 
           {/* Publisher */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Publisher
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Publisher</label>
             <input
               type="text"
               value={formData.publisher}
@@ -89,9 +122,7 @@ function ResourceForm({ onClose, onSubmit, categories = [] }) {
 
           {/* Published Date */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Published Date
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Published Date</label>
             <input
               type="date"
               value={formData.published_at}
@@ -103,9 +134,7 @@ function ResourceForm({ onClose, onSubmit, categories = [] }) {
 
           {/* Link */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Resource Link
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Resource Link</label>
             <input
               type="url"
               value={formData.link}
@@ -118,9 +147,7 @@ function ResourceForm({ onClose, onSubmit, categories = [] }) {
 
           {/* Category */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Category
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
             <select
               value={formData.category}
               onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
@@ -137,9 +164,7 @@ function ResourceForm({ onClose, onSubmit, categories = [] }) {
 
           {/* Classification */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Classification
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Classification</label>
             <select
               value={formData.classification}
               onChange={(e) => setFormData(prev => ({ ...prev, classification: e.target.value }))}
@@ -156,9 +181,7 @@ function ResourceForm({ onClose, onSubmit, categories = [] }) {
 
           {/* Tags */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tags
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Tags</label>
             <input
               type="text"
               value={formData.tags}
@@ -182,7 +205,7 @@ function ResourceForm({ onClose, onSubmit, categories = [] }) {
               type="submit"
               className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors"
             >
-              Add Resource
+              {Resource ? "Update Resource" : "Add Resource"}
             </button>
           </div>
         </form>
@@ -191,4 +214,4 @@ function ResourceForm({ onClose, onSubmit, categories = [] }) {
   )
 }
 
-export default ResourceForm 
+export default ResourceForm

@@ -7,41 +7,6 @@ import { eventService } from "../services/eventService"
 import {formatDate,formatTime} from "../services/formatdate"
 const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
-const events = [
-  {
-    id: 1,
-    title: "Annual Company Conference 2024",
-    date: "2024-03-15",
-    time: "09:00 AM",
-    location: "Grand Convention Center",
-    attendees: 250,
-    status: "Upcoming",
-    type: "Conference",
-    description: "Join us for our biggest event of the year featuring keynote speakers and networking opportunities.",
-  },
-  {
-    id: 2,
-    title: "Product Launch Webinar",
-    date: "2024-02-28",
-    time: "02:00 PM",
-    location: "Online",
-    attendees: 150,
-    status: "Upcoming",
-    type: "Webinar",
-    description: "Exclusive preview of our latest product features and roadmap.",
-  },
-  {
-    id: 3,
-    title: "Team Building Workshop",
-    date: "2024-01-20",
-    time: "10:00 AM",
-    location: "Office Building A",
-    attendees: 45,
-    status: "Completed",
-    type: "Workshop",
-    description: "Interactive workshop focused on team collaboration and communication skills.",
-  },
-]
 
 function EventsPage() {
   const [events, setEvents] = useState([])
@@ -124,7 +89,7 @@ function EventsPage() {
         setError(null)
         await eventService.deleteEvent(eventId)
         // Remove article from state
-        setArticles(prev => prev.filter(event => event.id !== eventId))
+        setEvents(prev => prev.filter(event => event.id !== eventId))
       } catch (error) {
         console.error('Failed to delete article:', error)
         setError('Failed to delete article. Please try again.')

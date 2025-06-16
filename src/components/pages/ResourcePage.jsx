@@ -1,84 +1,117 @@
 "use client"
 
-import { useState } from "react"
-import { Plus, X, ExternalLink, Tag, MoreVertical, Pencil, Trash2 } from "lucide-react"
+import { useState,useEffect } from "react"
+import { Plus, X, ExternalLink, Tag, MoreVertical, Pencil, Trash2 , Calendar, MapPin, Users, Clock, Filter,AlertCircle,AlertTriangle ,Search,Edit,Eye,Loader2,User} from "lucide-react"
 import ResourceForm from "./ResourceForm"
+import { resourceService } from "../services/resourceService"
+import {formatDate,formatTime} from "../services/formatdate"
+const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
 // Mock data - replace with actual API calls
-const mockResources = [
-  {
-    id: 1,
-    title: "Sustainable Development Goals",
-    author: "John Doe",
-    published_at: "2024-03-15",
-    publisher: "UN Publications",
-    link: "https://example.com/sdg",
-    category: { id: 1, name: "Development" },
-    tags: "sustainability, development, goals",
-    classification: "publication",
-    timestamp: "2024-03-15T10:00:00Z"
-  },
-  {
-    id: 2,
-    title: "Climate Change Impact Study",
-    author: "Jane Smith",
-    published_at: "2024-03-10",
-    publisher: "Climate Research Institute",
-    link: "https://example.com/climate",
-    category: { id: 2, name: "Research" },
-    tags: "climate, research, impact",
-    classification: "case_study",
-    timestamp: "2024-03-10T14:30:00Z"
-  }
-]
-
-// Mock categories - replace with actual API call
-const mockCategories = [
-  { id: 1, name: "Development" },
-  { id: 2, name: "Research" },
-  { id: 3, name: "Education" }
-]
 
 function ResourcePage() {
+  const [resources,setResources] = useState([]);
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [showResourceForm, setShowResourceForm] = useState(false)
   const [selectedResource, setSelectedResource] = useState(null)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [showDetailModal, setShowDetaileModal] = useState(false)
   const [resourceToDelete, setResourceToDelete] = useState(null)
   const [showMenu, setShowMenu] = useState(null)
 
-  const handleResourceSubmit = (formData) => {
-    // Handle form submission
-    console.log(formData)
-    setShowResourceForm(false)
-    setSelectedResource(null)
-  }
+  // Load articles on component mount
+  useEffect(() => {
+    loadResources()
+  }, [])
 
-  const handleEdit = (resource) => {
-    setSelectedResource(resource)
-    setShowResourceForm(true)
-    setShowMenu(null)
-  }
+
 
   const handleDelete = (resource) => {
     setResourceToDelete(resource)
     setShowDeleteModal(true)
     setShowMenu(null)
   }
-
-  const confirmDelete = () => {
-    // Handle delete
-    console.log("Deleting resource:", resourceToDelete)
-    setShowDeleteModal(false)
-    setResourceToDelete(null)
+  const Showdetail = (resource) => {
+    setSelectedResource(resource)
+    setShowDetaileModal(true)
+  }
+  const Closedetail = (resource) => {
+    setSelectedResource(null)
+    setShowDetaileModal(false)
   }
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
-  }
+
+    const loadResources = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const data = await resourceService.getAllresource()
+        // Ensure we always have an array
+        setResources(Array.isArray(data) ? data : [])
+      } catch (error) {
+        console.error('Failed to load resources:', error)
+        setError('Failed to load resources. Please try again.')
+        setResources([]) // Set empty array on error
+      } finally {
+        setLoading(false)
+      }
+    }
+
+
+    const handleResourceSubmit = async (formData) => {
+      try {
+        setError(null)
+        
+        if (selectedResource) {
+          // Update existing article
+          await resourceService.updateResource(selectedResource.id, formData)
+        } else {
+          // Create new article
+          await resourceService.createResource(formData)
+        }
+        
+        // Reload articles and close form
+        await loadEvents()
+        setShowResourceForm(false)
+        setSelectedResource(null)
+      } catch (error) {
+        console.error('Failed to save event:', error)
+        setError('Failed to save event. Please try again.')
+      }
+    }
+  
+    const handleEdit = async (resource) => {
+      try {
+        setError(null)
+        // Get full article details
+        const fullResource = await resourceService.getresourceDetail(resource.id)
+        setSelectedResource(fullResource)
+        setShowResourceForm(true)
+        setShowMenu(null)
+      } catch (error) {
+        console.error('Failed to load resource details:', error)
+        setError('Failed to load resource details. Please try again.')
+      }
+    }
+  
+    const confirmDelete = async () => {
+  
+      try {
+        setError(null)
+        setShowDeleteModal(false)
+        setResourceToDelete(null)
+        await resourceService.deleteResource(resourceToDelete.id)
+        // Remove article from state
+        setResources(prev => prev.filter(resource => resource.id !== resourceToDelete.id))
+      } catch (error) {
+        console.error('Failed to delete article:', error)
+        setError('Failed to delete article. Please try again.')
+      }
+    }
+
+
+
 
   return (
     <div className="p-6">
@@ -99,7 +132,7 @@ function ResourcePage() {
 
       {/* Resources List */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {mockResources.map((resource) => (
+        {resources.map((resource) => (
           <div
             key={resource.id}
             className="bg-white rounded-lg shadow overflow-hidden"
@@ -156,7 +189,7 @@ function ResourcePage() {
                 <span className="font-medium">Published:</span> {formatDate(resource.published_at)}
               </p>
               <p className="text-sm text-gray-600">
-                <span className="font-medium">Category:</span> {resource.category.name}
+                <span className="font-medium">Category:</span> {resource.category}
               </p>
               <p className="text-sm text-gray-600">
                 <span className="font-medium">Type:</span> {resource.classification.replace('_', ' ').toUpperCase()}
@@ -177,7 +210,7 @@ function ResourcePage() {
             {/* Resource Actions */}
             <div className="px-4 py-3 bg-gray-50 border-t flex justify-between items-center">
               <button
-                onClick={() => setSelectedResource(resource)}
+                onClick={() => Showdetail(resource)}
                 className="text-sm text-[#2a2d7a] hover:text-[#3a3d8a] font-medium"
               >
                 View Details
@@ -204,19 +237,18 @@ function ResourcePage() {
             setSelectedResource(null)
           }}
           onSubmit={handleResourceSubmit}
-          categories={mockCategories}
-          initialData={selectedResource}
+          Resource={selectedResource}
         />
       )}
 
       {/* Resource Detail Modal */}
-      {selectedResource && (
+      {showDetailModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between p-6 border-b">
               <h2 className="text-2xl font-bold text-gray-900">{selectedResource.title}</h2>
               <button
-                onClick={() => setSelectedResource(null)}
+                onClick={() => Closedetail()}
                 className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
               >
                 <X className="w-5 h-5 text-gray-600" />
@@ -240,7 +272,7 @@ function ResourcePage() {
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-700">Category</h3>
-                  <p className="mt-1 text-gray-900">{selectedResource.category.name}</p>
+                  <p className="mt-1 text-gray-900">{selectedResource.category}</p>
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-700">Type</h3>
