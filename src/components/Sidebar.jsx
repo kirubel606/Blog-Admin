@@ -13,15 +13,17 @@ import {
   ChevronLeft,
   ChevronRight,
   BookOpen,
+  BrainCircuit,
 } from "lucide-react"
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard" },
   { icon: Newspaper, label: "News" },
   { icon: Calendar, label: "Events" },
+  { icon: BookOpen, label: "Resources" },
+  { icon: BrainCircuit, label: "R&D" },
   { icon: ImageIcon, label: "Gallery" },
   { icon: Briefcase, label: "Vacancies" },
-  { icon: BookOpen, label: "Resources" },
   { icon: Users, label: "Users" },
   { icon: Settings, label: "Settings" },
 ]

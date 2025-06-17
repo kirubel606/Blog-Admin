@@ -13,6 +13,7 @@ import AnalyticsPage from "./pages/AnalyticsPage.jsx"
 import SettingsPage from "./pages/SettingsPage.jsx"
 import VacancyPage from "./pages/VacancyPage.jsx"
 import ResourcePage from "./pages/ResourcePage.jsx"
+import RND from "./pages/RND.jsx"
 
 function Dashboard({ user, onLogout }) {
   const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -26,6 +27,10 @@ function Dashboard({ user, onLogout }) {
         return <NewsPage />
       case "Events":
         return <EventsPage />
+      case "Resources":
+        return <ResourcePage />
+      case "R&D":
+        return <RND/>
       case "Website Essentials":
         return <WebsiteEssentialsPage />
       case "Gallery":
@@ -38,8 +43,6 @@ function Dashboard({ user, onLogout }) {
         return <SettingsPage />
       case "Vacancies":
         return <VacancyPage />
-      case "Resources":
-        return <ResourcePage />
       default:
         return <DashboardContent />
     }
