@@ -1,48 +1,91 @@
 "use client"
 
-import { useState } from "react"
-import { Plus, X } from "lucide-react"
+import { useState,useEffect } from "react"
+import { Plus, X, Trash2 } from "lucide-react"
 import GalleryForm from "./GalleryForm"
+import { galleryService } from "../services/galleryService"
+import {formatDate,formatTime} from "../services/formatdate"
 
-// Mock data - replace with actual API calls
-const mockGalleries = [
-  {
-    id: 1,
-    title: "Company Event 2024",
-    created_at: "2024-03-15T10:00:00Z",
-    images: [
-      { id: 1, image: "/path/to/image1.jpg", caption: "Team building activity" },
-      { id: 2, image: "/path/to/image2.jpg", caption: "Group photo" }
-    ]
-  },
-  {
-    id: 2,
-    title: "Product Launch",
-    created_at: "2024-03-10T14:30:00Z",
-    images: [
-      { id: 3, image: "/path/to/image3.jpg", caption: "New product showcase" },
-      { id: 4, image: "/path/to/image4.jpg", caption: "Customer feedback" }
-    ]
-  }
-]
 
 function GalleryPage() {
+  const [galleries, setGalleries] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [showGalleryForm, setShowGalleryForm] = useState(false)
+  const [editingGallery, setEditingGallery] = useState(null)
   const [selectedGallery, setSelectedGallery] = useState(null)
+  // Load articles on component mount
+  useEffect(() => {
+    loadGallery()
+  }, [])
+  
+  
+    const loadGallery = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const data = await galleryService.getAllgallery()
+        // Ensure we always have an array
+        setGalleries(Array.isArray(data) ? data : [])
+      } catch (error) {
+        console.error('Failed to load events:', error)
+        setError('Failed to load events. Please try again.')
+        setGalleries([]) // Set empty array on error
+      } finally {
+        setLoading(false)
+      }
+    }
+    const handleGallerySubmit = async (formData) => {
+      try {
+        let savedGallery
+    
+        if (editingGallery) {
+          // Call backend and get updated gallery
+          savedGallery = await galleryService.updateGallery(editingGallery.id, formData)
+    
+          // Update locally with backend response
+          setGalleries(prev =>
+            prev.map(g => g.id === editingGallery.id ? savedGallery : g)
+          )
+        } else {
+          // Call backend and get created gallery
+          savedGallery = await galleryService.createGallery(formData)
+    
+          // Add the fully created gallery to state
+          setGalleries(prev => [...prev, savedGallery])
+        }
+    
+        setShowGalleryForm(false)
+        setEditingGallery(null)
+      } catch (error) {
+        console.error("Failed to save gallery:", error)
+        setError("Failed to save gallery. Please try again.")
+      }
+    }
+    
+ 
 
-  const handleGallerySubmit = (formData) => {
-    // Handle form submission
-    console.log(formData)
-    setShowGalleryForm(false)
-  }
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
-  }
+    const handleDeleteGallery = async (id) => {
+      const confirmDelete = confirm("Are you sure you want to delete this gallery?")
+      if (!confirmDelete) return
+    
+      try {
+        setError(null)
+    
+        // Await deletion from backend
+        await galleryService.deleteGallery(id)
+    
+        // Update UI after successful delete
+        setGalleries(prev => prev.filter(g => g.id !== id))
+        setSelectedGallery(null)
+        setEditingGallery(null)
+      } catch (error) {
+        console.error("Failed to delete gallery:", error)
+        setError("Failed to delete gallery. Please try again.")
+      }
+    }
+    
 
   return (
     <div className="p-6">
@@ -53,7 +96,10 @@ function GalleryPage() {
           <p className="text-gray-600 mt-1">Manage your image galleries</p>
         </div>
         <button
-          onClick={() => setShowGalleryForm(true)}
+          onClick={() => {
+            setEditingGallery(null)
+            setShowGalleryForm(true)
+          }}
           className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary/90 transition-colors"
         >
           <Plus className="w-5 h-5 mr-2" />
@@ -63,49 +109,54 @@ function GalleryPage() {
 
       {/* Galleries Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {mockGalleries.map((gallery) => (
+        {galleries.map((gallery) => (
           <div
             key={gallery.id}
             className="bg-white rounded-lg shadow overflow-hidden"
           >
-            {/* Gallery Header */}
             <div className="p-4 border-b">
               <h3 className="text-lg font-semibold text-gray-900">{gallery.title}</h3>
               <p className="text-sm text-gray-500 mt-1">
                 Created on {formatDate(gallery.created_at)}
               </p>
             </div>
-
-            {/* Gallery Images */}
             <div className="p-4">
               <div className="grid grid-cols-2 gap-2">
-                {gallery.images.map((image) => (
-                  <div key={image.id} className="relative group">
-                    <div className="aspect-w-4 aspect-h-3 rounded-lg overflow-hidden">
-                      <img
-                        src={image.image}
-                        alt={image.caption || "Gallery image"}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    {image.caption && (
-                      <p className="mt-1 text-sm text-gray-600 truncate">
-                        {image.caption}
-                      </p>
-                    )}
+                {gallery.images.slice(0, 4).map((image) => (
+                  <div key={image.id} className="aspect-w-4 aspect-h-3 rounded-lg overflow-hidden">
+                    <img
+                      src={image.image}
+                      alt={image.caption || "Gallery image"}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                 ))}
               </div>
             </div>
-
-            {/* Gallery Actions */}
-            <div className="px-4 py-3 bg-gray-50 border-t">
+            <div className="px-4 py-3 bg-gray-50 border-t flex justify-between items-center">
               <button
                 onClick={() => setSelectedGallery(gallery)}
                 className="text-sm text-primary font-medium"
               >
-                View All Images
+                View Gallery
               </button>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => {
+                    setEditingGallery(gallery)
+                    setShowGalleryForm(true)
+                  }}
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDeleteGallery(gallery.id)}
+                  className="text-sm text-red-600 hover:underline"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           </div>
         ))}
@@ -114,8 +165,20 @@ function GalleryPage() {
       {/* Gallery Form Modal */}
       {showGalleryForm && (
         <GalleryForm
-          onClose={() => setShowGalleryForm(false)}
+          onClose={() => {
+            setShowGalleryForm(false)
+            setEditingGallery(null)
+          }}
           onSubmit={handleGallerySubmit}
+          initialData={
+            editingGallery
+              ? {
+                  title: editingGallery.title,
+                  caption: editingGallery.caption,
+                  images: editingGallery.images.map((img) => img.image)
+                }
+              : null
+          }
         />
       )}
 
@@ -133,6 +196,7 @@ function GalleryPage() {
               </button>
             </div>
             <div className="p-6">
+              <p className="mb-4 text-gray-700">{selectedGallery.caption}</p>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {selectedGallery.images.map((image) => (
                   <div key={image.id} className="relative group">
@@ -148,6 +212,15 @@ function GalleryPage() {
                     )}
                   </div>
                 ))}
+              </div>
+              <div className="mt-6 flex justify-end">
+                <button
+                  onClick={() => handleDeleteGallery(selectedGallery.id)}
+                  className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Delete Gallery
+                </button>
               </div>
             </div>
           </div>

@@ -1,14 +1,28 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { X } from "lucide-react"
 
-function GalleryForm({ onClose, onSubmit }) {
+function GalleryForm({ onClose, onSubmit, initialData = null }) {
   const [formData, setFormData] = useState({
     title: "",
-    images: [],
-    captions: {}
+    caption: "",
+    images: [],           // new uploads
+    existingImages: [],   // old images (URLs or objects)
+    removedImages: [],    // 🆕 track removed existing ones
   })
+  
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        title: initialData.title || "",
+        caption: initialData.caption || "",
+        images: [], // new uploads
+        existingImages: initialData.images || [], // array of URLs or image data
+        removedImages: [],  // <<< Initialize it here too!
+      })
+    }
+  }, [initialData])
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -20,20 +34,6 @@ function GalleryForm({ onClose, onSubmit }) {
     setFormData(prev => ({
       ...prev,
       images: [...prev.images, ...files],
-      captions: {
-        ...prev.captions,
-        ...Object.fromEntries(files.map(file => [file.name, ""]))
-      }
-    }))
-  }
-
-  const handleCaptionChange = (fileName, caption) => {
-    setFormData(prev => ({
-      ...prev,
-      captions: {
-        ...prev.captions,
-        [fileName]: caption
-      }
     }))
   }
 
@@ -41,9 +41,14 @@ function GalleryForm({ onClose, onSubmit }) {
     setFormData(prev => ({
       ...prev,
       images: prev.images.filter(file => file.name !== fileName),
-      captions: Object.fromEntries(
-        Object.entries(prev.captions).filter(([key]) => key !== fileName)
-      )
+    }))
+  }
+
+  const removeExistingImage = (url) => {
+    setFormData(prev => ({
+      ...prev,
+      existingImages: prev.existingImages.filter(img => img !== url),
+      removedImages: [...prev.removedImages, url],  // ✅ track removed
     }))
   }
 
@@ -52,7 +57,9 @@ function GalleryForm({ onClose, onSubmit }) {
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-2xl font-bold text-gray-900">Create New Gallery</h2>
+          <h2 className="text-2xl font-bold text-gray-900">
+            {initialData ? "Edit Gallery" : "Create New Gallery"}
+          </h2>
           <button
             onClick={onClose}
             className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
@@ -78,29 +85,71 @@ function GalleryForm({ onClose, onSubmit }) {
             />
           </div>
 
+          {/* Caption */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Gallery Caption
+            </label>
+            <textarea
+              value={formData.caption}
+              onChange={(e) => setFormData(prev => ({ ...prev, caption: e.target.value }))}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
+              placeholder="Add a caption for this gallery (optional)"
+              rows={3}
+            />
+          </div>
+
           {/* Images Upload */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Gallery Images
             </label>
-            <div className="mt-1">
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleImageChange}
-                className="block w-full text-sm text-gray-500
-                  file:mr-4 file:py-2 file:px-4
-                  file:rounded-lg file:border-0
-                  file:text-sm file:font-semibold
-                  file:bg-secondary file:text-white
-                  hover:file:bg-secondary/80"
-              />
-            </div>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImageChange}
+              className="block w-full text-sm text-gray-500
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-lg file:border-0
+                file:text-sm file:font-semibold
+                file:bg-primary file:text-white
+                hover:file:bg-primary/80"
+            />
+          </div>
 
-            {/* Image Previews with Captions */}
-            {formData.images.length > 0 && (
-              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {/* Existing Images */}
+          {formData.existingImages.length > 0 && (
+            <div className="mt-4">
+              <p className="text-sm font-medium text-gray-700 mb-2">Existing Images</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {formData.existingImages.map((url, idx) => (
+                  <div key={idx} className="relative group">
+                    <div className="aspect-w-4 aspect-h-3 rounded-lg overflow-hidden">
+                      <img
+                        src={url}
+                        alt={`Existing Image ${idx}`}
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeExistingImage(url)}
+                        className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* New Uploaded Images */}
+          {formData.images.length > 0 && (
+            <div className="mt-4">
+              <p className="text-sm font-medium text-gray-700 mb-2">New Images</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {formData.images.map((file) => (
                   <div key={file.name} className="relative group">
                     <div className="aspect-w-4 aspect-h-3 rounded-lg overflow-hidden">
@@ -117,18 +166,11 @@ function GalleryForm({ onClose, onSubmit }) {
                         <X className="w-4 h-4" />
                       </button>
                     </div>
-                    <input
-                      type="text"
-                      value={formData.captions[file.name] || ""}
-                      onChange={(e) => handleCaptionChange(file.name, e.target.value)}
-                      className="mt-2 w-full px-3 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                      placeholder="Add caption (optional)"
-                    />
                   </div>
                 ))}
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Actions */}
           <div className="flex justify-end space-x-4 pt-6 border-t">
@@ -141,9 +183,9 @@ function GalleryForm({ onClose, onSubmit }) {
             </button>
             <button
               type="submit"
-              className="px-6 py-2 bg-secondary text-white rounded-lg hover:bg-secondary/90 transition-colors"
+              className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
             >
-              Create Gallery
+              {initialData ? "Update Gallery" : "Create Gallery"}
             </button>
           </div>
         </form>
@@ -152,4 +194,4 @@ function GalleryForm({ onClose, onSubmit }) {
   )
 }
 
-export default GalleryForm 
+export default GalleryForm
