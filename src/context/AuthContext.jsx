@@ -21,7 +21,7 @@ export function AuthProvider({ children }) {
         if (decoded.exp * 1000 > Date.now()) {
           setAccessToken(storedAccess)
           setRefreshToken(storedRefresh)
-          setUser({ email: decoded.email, name: decoded.username, role: decoded.role })
+          setUser({ email: decoded.email, name: decoded.username, role: decoded.role ,profile_image: decoded.profile_image })
           scheduleTokenRefresh(storedAccess)
         } else {
           // Access token expired, try refresh
@@ -47,7 +47,7 @@ export function AuthProvider({ children }) {
         setAccessToken(data.access)
         localStorage.setItem("accessToken", data.access)
         const decoded = jwtDecode(data.access)
-        setUser({ email: decoded.email, name: decoded.username, role: decoded.role })
+        setUser({ email: decoded.email, name: decoded.username, role: decoded.role,profile_image: decoded.profile_image })
         scheduleTokenRefresh(data.access)
       } else {
         logout()
@@ -85,7 +85,7 @@ export function AuthProvider({ children }) {
     localStorage.setItem("refreshToken", data.refresh)
 
     const decoded = jwtDecode(data.access)
-    setUser({ email: decoded.email, name: decoded.username, role: decoded.role })
+    setUser({ email: decoded.email, name: decoded.username, role: decoded.role ,profile_image: decoded.profile_image })
 
     scheduleTokenRefresh(data.access)
   }

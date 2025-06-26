@@ -2,11 +2,12 @@
 
 import { useState, useRef, useEffect } from "react"
 import { Bell, Search, LogOut, User, Settings, Menu } from "lucide-react"
+const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
 function Navbar({ user, onLogout, onToggleSidebar }) {
   const [showProfileMenu, setShowProfileMenu] = useState(false)
   const profileMenuRef = useRef(null)
-
+  console.log("This is the user:",user);
   useEffect(() => {
     function handleClickOutside(event) {
       if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
@@ -62,9 +63,9 @@ function Navbar({ user, onLogout, onToggleSidebar }) {
               onClick={() => setShowProfileMenu(!showProfileMenu)}
               className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 transition-colors"
             >
-              {user.avatar ? (
+              {user.profile_image ? (
                 <img
-                  src={user.avatar || "/placeholder.svg"}
+                  src={BACKEND_BASE_URL+user.profile_image}
                   alt={user.name}
                   className="w-8 h-8 rounded-full object-cover"
                 />

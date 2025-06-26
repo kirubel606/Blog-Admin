@@ -3,6 +3,7 @@ import UserFormModal from "./userForm" // adjust path as needed
 import { useState,useEffect } from "react"
 import { Plus, Search } from "lucide-react"
 import axiosInstance from "../../api"  // adjust path if needed
+const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
 
 
@@ -18,15 +19,29 @@ function UsersPage() {
   const [editingUser, setEditingUser] = useState(null);
   const roles = ["All", "Administrator", "Editor", "Author"];
   const statuses = ["All", "Active", "Inactive"];
-
+  const [confirmDeleteUserId, setConfirmDeleteUserId] = useState(null);
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
       user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = selectedRole === "All" || user.role === selectedRole;
-    const matchesStatus = selectedStatus === "All" || user.status === selectedStatus;
+  
+    // Map roles to conditions
+    const roleConditions = {
+      All: true,
+      Admin: user.is_admin,
+      Staff: user.is_staff,
+      Active: user.is_active,
+      Inactive: !user.is_active,
+    };
+  
+    const matchesRole = roleConditions[selectedRole] ?? true;
+  
+    const matchesStatus =
+      selectedStatus === "All" || user.status === selectedStatus;
+  
     return matchesSearch && matchesRole && matchesStatus;
   });
+  
   const fetchUsers = async () => {
     try {
       const res = await axiosInstance.get("api/users/all/", {
@@ -35,21 +50,26 @@ function UsersPage() {
         },
       });
       setUsers(res.data.users);
+      setError(null);
     } catch (err) {
       setError(err.response.data.detail);
       console.error("Error fetching users", err);
     }
   };
-  const handleCreateOrUpdateUser = async (formData) => {
+  const handleCreateOrUpdateUser = async (values) => {
+    // Build FormData exactly once
     const data = new FormData();
-    Object.entries(formData).forEach(([key, value]) => {
-      if (value) data.append(key, value);
-    });
+    data.append("username", values.username);
+    data.append("email", values.email);
+    if (values.password) data.append("password", values.password);
+    if (values.profile_image) data.append("profile_image", values.profile_image);
+  
+    // Append each permission ID separately so DRF picks them up as a list
+    values.permissions.forEach((permId) => data.append("permissions", permId));
   
     const url = editingUser
-      ? `api/users/` // for logged-in user update
+      ? `api/users/user/update/${editingUser.id}/`
       : `api/users/user/signup/`;
-  
     const method = editingUser ? "put" : "post";
   
     try {
@@ -59,33 +79,54 @@ function UsersPage() {
         data,
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "multipart/form-data",
+          // **no** Content-Type here—let the browser set it
         },
       });
       setIsModalOpen(false);
       setEditingUser(null);
+      setError(null);
       fetchUsers();
     } catch (err) {
+      setError(err.response.data.detail);
       console.error("Error saving user", err);
     }
   };
   
-  const handleDeleteUser = async (userId) => {
+  
+  const confirmDelete = async () => {
     try {
-      await axiosInstance.delete(`api/users/user/`, {
+      await axiosInstance.delete(`api/users/user/delete/${confirmDeleteUserId}/`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
       fetchUsers();
+      setError(null);
     } catch (err) {
+      setError(err?.response?.data?.detail || "Delete failed");
       console.error("Delete failed", err);
+    } finally {
+      setConfirmDeleteUserId(null); // Close modal
     }
   };
+  
+  const handleDeleteUser = async (userId) => {
+    setConfirmDeleteUserId(userId); // Show modal
+  };
+  
   
   useEffect(() => {
     fetchUsers();
   }, []);
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError(null);
+      }, 3000); // show for 3 seconds
+  
+      return () => clearTimeout(timer); // cleanup if component unmounts or error changes
+    }
+  }, [error]);
 
   const getInitials = (name) => {
     return name
@@ -142,27 +183,13 @@ function UsersPage() {
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
             />
           </div>
-          <select
-            value={selectedRole}
-            onChange={(e) => setSelectedRole(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+          <select value={selectedRole} onChange={(e) => setSelectedRole(e.target.value)}            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
           >
-            {roles.map((role) => (
-              <option key={role} value={role}>
-                {role}
-              </option>
-            ))}
-          </select>
-          <select
-            value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-          >
-            {statuses.map((status) => (
-              <option key={status} value={status}>
-                {status}
-              </option>
-            ))}
+            <option value="All">All</option>
+            <option value="Admin">Admin</option>
+            <option value="Staff">Staff</option>
+            <option value="Active">Active Users</option>
+            <option value="Inactive">Inactive Users</option>
           </select>
         </div>
       </div>
@@ -204,7 +231,7 @@ function UsersPage() {
                         {user.profile_image ? (
                           <img
                             className="h-10 w-10 rounded-full"
-                            src={user.profile_image}
+                            src={BACKEND_BASE_URL+user.profile_image}
                             alt={user.username}
                           />
                         ) : (
@@ -266,6 +293,38 @@ function UsersPage() {
       onSubmit={handleCreateOrUpdateUser}
       editingUser={editingUser}
     />
+    {error && (
+  <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[9999] bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg animate-bounce">
+    {error}
+  </div>
+)}
+
+{confirmDeleteUserId && (
+  <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-[9999]">
+    <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
+      <h2 className="text-lg font-semibold mb-4 text-center">Confirm Deletion</h2>
+      <p className="text-sm text-gray-700 text-center mb-6">
+        Are you sure you want to delete this user? This action is irreversible.
+      </p>
+      <div className="flex justify-center gap-4">
+        <button
+          onClick={() => setConfirmDeleteUserId(null)}
+          className="px-4 py-2 rounded bg-gray-300 text-gray-800 hover:bg-gray-400 transition"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={confirmDelete}
+          className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 transition"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
     </div>
   )
 }
