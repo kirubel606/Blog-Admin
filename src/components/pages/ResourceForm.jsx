@@ -19,9 +19,12 @@ function ResourceForm({ Resource = null, onClose, onSubmit }) {
   const [catLoading, setCatLoading] = useState(true)
   const [formData, setFormData] = useState({
     title: "",
+    title_am:"",
     author: "",
+    author_am: "",
     published_at: "",
     publisher: "",
+    publisher_am: "",
     link: "",
     category: "",
     tags: "",
@@ -48,9 +51,12 @@ function ResourceForm({ Resource = null, onClose, onSubmit }) {
     if (Resource) {
       setFormData({
         title: Resource.title || "",
+        title_am: Resource.title_am || "",
         author: Resource.author || "",
+        author_am: Resource.author_am || "",
         published_at: Resource.published_at || "",
         publisher: Resource.publisher || Resource.plublisher || "",
+        publisher_am: Resource.publisher_am || Resource.plublisher_am || "",
         link: Resource.link || "",
         category: Resource.category || "",
         tags: Resource.tags || "",
@@ -91,7 +97,16 @@ function ResourceForm({ Resource = null, onClose, onSubmit }) {
               onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent text-gray-900"
               placeholder="Enter resource title"
-              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Amharic Title</label>
+            <input
+              type="text"
+              value={formData.title_am}
+              onChange={(e) => setFormData(prev => ({ ...prev, title_am: e.target.value }))}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent text-gray-900"
+              placeholder="Enter Amharic title"
             />
           </div>
 
@@ -104,7 +119,16 @@ function ResourceForm({ Resource = null, onClose, onSubmit }) {
               onChange={(e) => setFormData(prev => ({ ...prev, author: e.target.value }))}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent text-gray-900"
               placeholder="Enter author name"
-              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Author in Amharic</label>
+            <input
+              type="text"
+              value={formData.author_am}
+              onChange={(e) => setFormData(prev => ({ ...prev, author_am: e.target.value }))}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent text-gray-900"
+              placeholder="Enter author name in Amharic"
             />
           </div>
 
@@ -117,6 +141,16 @@ function ResourceForm({ Resource = null, onClose, onSubmit }) {
               onChange={(e) => setFormData(prev => ({ ...prev, publisher: e.target.value }))}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent text-gray-900"
               placeholder="Enter publisher name"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Publisher in Amharic</label>
+            <input
+              type="text"
+              value={formData.publisher_am}
+              onChange={(e) => setFormData(prev => ({ ...prev, publisher_am: e.target.value }))}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent text-gray-900"
+              placeholder="Enter publisher name in Amharic"
             />
           </div>
 

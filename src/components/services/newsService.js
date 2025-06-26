@@ -55,8 +55,12 @@ export const newsService = {
     // POST {API_BASE_URL}/news/newspost/ with FormData
     const payload = new FormData()
     payload.append("title", formData.title)
+    payload.append("title_am", formData.title_am)
+    payload.append("subtitle", formData.subtitle)
+    payload.append("subtitle_am", formData.subtitle_am)
     payload.append("category", formData.category)
     payload.append("content", formData.content)
+    payload.append("content_am", formData.content_am)
     payload.append("tags", formData.tags)
     payload.append("status", formData.status)
 
@@ -78,8 +82,12 @@ export const newsService = {
     // PUT {API_BASE_URL}/news/news/:id/ with FormData
     const payload = new FormData()
     payload.append("title", formData.title)
+    payload.append("title_am", formData.title_am)
+    payload.append("subtitle", formData.subtitle)
+    payload.append("subtitle_am", formData.subtitle_am)
     payload.append("category", formData.category)
     payload.append("content", formData.content)
+    payload.append("content_am", formData.content_am)
     payload.append("tags", formData.tags)
     payload.append("status", formData.status)
 

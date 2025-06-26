@@ -10,10 +10,14 @@ function EventForm({ event, onClose, onSubmit }) {
   const [catLoading, setCatLoading] = useState(true)
   const [formData, setFormData] = useState({
     title: "",
+    title_am:"",
     location: "",
+    location_am:"",
     description: "",
+    description_am:"",
     category: "",   // id or slug from API
     venue: "",
+    venue_am:"",
     video_link: "",
     image: null,
     is_live: false,
@@ -46,10 +50,14 @@ function EventForm({ event, onClose, onSubmit }) {
     if (event) {
       setFormData({
         title: event.title || "",
+        title_am: event.title_am || "",
         location: event.location || "",
+        location_am: event.location_am || "",
         description: event.description || "",
+        description_am: event.description_am || "",
         category: event.category || "",  // assuming category has id
         venue: event.venue || "",
+        venue_am: event.venue_am || "",
         video_link: event.video_link || "",
         image: event.image || null, // don't preload image file, only new upload
         is_live: event.is_live || false,
@@ -99,7 +107,7 @@ function EventForm({ event, onClose, onSubmit }) {
             onClick={onClose}
             className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            <X className="w-5 h-5 text-gray-600" />
+            <X className="w-5 h-5 text-gray-600"/>
           </button>
         </div>
 
@@ -116,7 +124,20 @@ function EventForm({ event, onClose, onSubmit }) {
               onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
               placeholder="Enter event title"
-              required
+              
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Amharic Title 
+            </label>
+            <input
+              type="text"
+              value={formData.title_am}
+              onChange={(e) => setFormData(prev => ({ ...prev, title_am: e.target.value }))}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
+              placeholder="Enter Amharic title"
+              
             />
           </div>
 
@@ -131,7 +152,20 @@ function EventForm({ event, onClose, onSubmit }) {
               onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
               placeholder="Enter event location"
-              required
+              
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Amharic Location
+            </label>
+            <input
+              type="text"
+              value={formData.location_am}
+              onChange={(e) => setFormData(prev => ({ ...prev, location_am: e.target.value }))}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
+              placeholder="Enter Amharic location"
+              
             />
           </div>
 
@@ -146,7 +180,20 @@ function EventForm({ event, onClose, onSubmit }) {
               onChange={(e) => setFormData(prev => ({ ...prev, venue: e.target.value }))}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
               placeholder="Enter event venue"
-              required
+              
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Amharic Venue 
+            </label>
+            <input
+              type="text"
+              value={formData.venue_am}
+              onChange={(e) => setFormData(prev => ({ ...prev, venue_am: e.target.value }))}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
+              placeholder="Enter Amharic venue"
+              
             />
           </div>
 
@@ -220,7 +267,18 @@ function EventForm({ event, onClose, onSubmit }) {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
               placeholder="Enter event description"
               rows="4"
-              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Amharic Description
+            </label>
+            <textarea
+              value={formData.description_am}
+              onChange={(e) => setFormData(prev => ({ ...prev, description_am: e.target.value }))}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
+              placeholder="Enter Amharic description"
+              rows="4"
             />
           </div>
 

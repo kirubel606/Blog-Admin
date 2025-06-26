@@ -14,7 +14,13 @@ export default function SettingsPage() {
     line1: "",
     line2: "",
     email: "",
+    facebook:"",
+    twitter:"",
+    instagram:"",
+    youtube:"",
+    linkdin:"",
     location: "",
+    location_am:"",
     map_link: ""
   })
   const isValidMapIframe = (html) => {
@@ -112,11 +118,71 @@ export default function SettingsPage() {
               />
             </div>
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Facebook</label>
+              <input
+                type="text"
+                name="facebook"
+                value={settings.facebook}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Twitter</label>
+              <input
+                type="text"
+                name="twitter"
+                value={settings.twitter}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Instagram</label>
+              <input
+                type="text"
+                name="instagram"
+                value={settings.instagram}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Youtube</label>
+              <input
+                type="text"
+                name="youtube"
+                value={settings.youtube}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Linkdin</label>
+              <input
+                type="text"
+                name="linkdin"
+                value={settings.linkdin}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+              />
+            </div>
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
               <input
                 type="text"
                 name="location"
                 value={settings.location}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Location in Amharic</label>
+              <input
+                type="text"
+                name="location_am"
+                value={settings.location_am}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg"
               />

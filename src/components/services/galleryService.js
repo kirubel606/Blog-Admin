@@ -14,13 +14,16 @@ export const galleryService = {
       return data.results || []
     },
   
-
   // ✅ Create new gallery with images
   async createGallery(formData) {
     const payload = new FormData()
 
     payload.append("title", formData.title)
+    payload.append("title_am", formData.title_am)
     payload.append("caption", formData.caption || "")
+    payload.append("caption_am", formData.caption_am || "")
+    payload.append("discription", formData.discription || "")
+    payload.append("discription_am", formData.discription_am || "")
     payload.append("classification", "gallery")
 
     if (formData.category)
@@ -48,7 +51,11 @@ async updateGallery(galleryId, formData) {
     const payload = new FormData()
   
     payload.append("title", formData.title)
+    payload.append("title_am", formData.title_am)
     payload.append("caption", formData.caption || "")
+    payload.append("caption_am", formData.caption_am || "")
+    payload.append("discription", formData.discription || "")
+    payload.append("discription_am", formData.discription_am || "")
     payload.append("classification", "gallery")
   
     if (formData.category)

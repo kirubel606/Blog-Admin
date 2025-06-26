@@ -26,9 +26,13 @@ async createEvent(formData) {
     const payload = new FormData();
   
     payload.append("title", formData.title);
+    payload.append("title_am", formData.title_am);
     payload.append("location", formData.location);
+    payload.append("location_am", formData.location_am);
     payload.append("description", formData.description);
+    payload.append("description_am", formData.description_am);
     payload.append("venue", formData.venue);
+    payload.append("venue_am", formData.venue_am);
     payload.append("video_link", formData.video_link);
     payload.append("category", formData.category);
     payload.append("is_live", formData.is_live); // boolean
@@ -54,9 +58,13 @@ async updateEvent(eventId, formData) {
     const payload = new FormData();
   
     payload.append("title", formData.title);
+    payload.append("title_am", formData.title_am);
     payload.append("location", formData.location);
+    payload.append("location_am", formData.location_am);
     payload.append("description", formData.description);
+    payload.append("description_am", formData.description_am);
     payload.append("venue", formData.venue);
+    payload.append("venue_am", formData.venue_am);
     payload.append("video_link", formData.video_link);
     payload.append("category", formData.category);
     payload.append("is_live", formData.is_live); // should be true/false

@@ -26,7 +26,9 @@ async createResource(formData) {
     const payload = new FormData();
   
     payload.append("title", formData.title);
+    payload.append("title_am", formData.title_am);
     payload.append("author", formData.author);
+    payload.append("author_am", formData.author_am);
     payload.append("link", formData.link);
     payload.append("tags", formData.tags); // comma-separated
     payload.append("classification", formData.classification); // 'publication' | 'resource'
@@ -39,6 +41,9 @@ async createResource(formData) {
     if (formData.plublisher) {
       payload.append("plublisher", formData.plublisher);
     }
+    if (formData.plublisher) {
+      payload.append("plublisher_am", formData.plublisher_am);
+    }
   
     const { data } = await axiosInstance.post("/resources/", payload);
     return data;
@@ -49,7 +54,9 @@ async updateResource(resourceId, formData) {
     const payload = new FormData();
   
     payload.append("title", formData.title);
+    payload.append("title_am", formData.title_am);
     payload.append("author", formData.author);
+    payload.append("author_am", formData.author_am);
     payload.append("link", formData.link);
     payload.append("tags", formData.tags); // comma-separated string
     payload.append("classification", formData.classification); // 'publication' | 'resource'
@@ -61,6 +68,9 @@ async updateResource(resourceId, formData) {
   
     if (formData.plublisher) {
       payload.append("plublisher", formData.plublisher);
+    }
+    if (formData.plublisher) {
+      payload.append("plublisher_am", formData.plublisher_am);
     }
   
     const { data } = await axiosInstance.put(

@@ -174,7 +174,11 @@ function GalleryPage() {
             editingGallery
               ? {
                   title: editingGallery.title,
+                  title_am: editingGallery.title_am,
                   caption: editingGallery.caption,
+                  caption_am: editingGallery.caption_am,
+                  discription: editingGallery.discription,
+                  discription_am: editingGallery.discription_am,
                   images: editingGallery.images.map((img) => img.image)
                 }
               : null

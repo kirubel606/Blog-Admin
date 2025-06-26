@@ -6,7 +6,11 @@ import { X } from "lucide-react"
 function GalleryForm({ onClose, onSubmit, initialData = null }) {
   const [formData, setFormData] = useState({
     title: "",
+    title_am:"",
+    discription:"",
+    discription_am:"",
     caption: "",
+    caption_am: "",
     images: [],           // new uploads
     existingImages: [],   // old images (URLs or objects)
     removedImages: [],    // 🆕 track removed existing ones
@@ -14,9 +18,14 @@ function GalleryForm({ onClose, onSubmit, initialData = null }) {
   
   useEffect(() => {
     if (initialData) {
+      console.log("This is initial Data:",initialData);
       setFormData({
         title: initialData.title || "",
+        title_am: initialData.title_am || "",
+        discription: initialData.discription || "",
+        discription_am: initialData.discription_am || "",
         caption: initialData.caption || "",
+        caption_am: initialData.caption_am || "",
         images: [], // new uploads
         existingImages: initialData.images || [], // array of URLs or image data
         removedImages: [],  // <<< Initialize it here too!
@@ -81,7 +90,20 @@ function GalleryForm({ onClose, onSubmit, initialData = null }) {
               onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
               placeholder="Enter gallery title"
-              required
+              
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Amharic Title
+            </label>
+            <input
+              type="text"
+              value={formData.title_am}
+              onChange={(e) => setFormData(prev => ({ ...prev, title_am: e.target.value }))}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
+              placeholder="Enter Amharic title"
+         
             />
           </div>
 
@@ -90,11 +112,50 @@ function GalleryForm({ onClose, onSubmit, initialData = null }) {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Gallery Caption
             </label>
-            <textarea
+            <input
+              type="text"
               value={formData.caption}
               onChange={(e) => setFormData(prev => ({ ...prev, caption: e.target.value }))}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
-              placeholder="Add a caption for this gallery (optional)"
+              placeholder="Enter Amharic title"
+         
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Amharic Caption
+            </label>
+            <input
+              type="text"
+              value={formData.caption_am}
+              onChange={(e) => setFormData(prev => ({ ...prev, caption_am: e.target.value }))}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
+              placeholder="Enter Amharic title"
+         
+            />
+          </div>
+          {/* Description */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Gallery Description
+            </label>
+            <textarea
+              value={formData.discription}
+              onChange={(e) => setFormData(prev => ({ ...prev, discription: e.target.value }))}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
+              placeholder="Add a description for this gallery"
+              rows={3}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Amharic Description
+            </label>
+            <textarea
+              value={formData.discription_am}
+              onChange={(e) => setFormData(prev => ({ ...prev, discription_am: e.target.value }))}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
+              placeholder="Add an Amharic description for this gallery"
               rows={3}
             />
           </div>

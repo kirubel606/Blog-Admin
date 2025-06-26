@@ -10,8 +10,12 @@ function ArticleForm({ article, onClose, onSubmit }) {
   const [catLoading, setCatLoading] = useState(true)
   const [formData, setFormData] = useState({
     title: "",
+    title_am:"",
+    subtitle : "",
+    subtitle_am : "",
     category: "",
     content: "",
+    content_am: "",
     cover_image: null,
     images: [],
     tags: "",
@@ -46,8 +50,12 @@ function ArticleForm({ article, onClose, onSubmit }) {
     if (article) {
       setFormData({
         title: article.title || "",
+        title_am : article.title_am || "",
+        subtitle : article.subtitle || "",
+        subtitle_am : article.subtitle_am || "",
         category: article.category?.id || article.category || "",
         content: article.content || "",
+        content_am: article.content_am || "",  
         cover_image: article.cover_image || null,
         images: article.images || [],
         tags: Array.isArray(article.tags) ? article.tags.join(', ') : (article.tags || ""),
@@ -231,6 +239,45 @@ const handleSubmit = async (e) => {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               placeholder="Enter article title"
               required
+              disabled={isSubmitting}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Title Amharic
+            </label>
+            <input
+              type="text"
+              value={formData.title_am}
+              onChange={(e) => setFormData(prev => ({ ...prev, title_am: e.target.value }))}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+              placeholder="Enter Amharic Title"
+              disabled={isSubmitting}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Subtitle 
+            </label>
+            <input
+              type="text"
+              value={formData.subtitle}
+              onChange={(e) => setFormData(prev => ({ ...prev, subtitle: e.target.value }))}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+              placeholder="Enter Subtitle"
+              disabled={isSubmitting}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Subtitle Amharic
+            </label>
+            <input
+              type="text"
+              value={formData.subtitle_am}
+              onChange={(e) => setFormData(prev => ({ ...prev, subtitle_am: e.target.value }))}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+              placeholder="Enter Amharic Subtitle"
               disabled={isSubmitting}
             />
           </div>
@@ -418,6 +465,59 @@ const handleSubmit = async (e) => {
             <p className="text-sm text-gray-500 mt-1">
               Use the rich text editor to format your article content with headings, lists, links, and more.
             </p>
+          </div>
+          {/* Content Amharic - WYSIWYG Editor */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Amharic Content
+            </label>
+            <div className="border border-gray-300 rounded-lg overflow-hidden">
+              <CKEditor
+                editor={ClassicEditor}
+                data={formData.content_am}
+                onChange={(event, editor) => {
+                  const data = editor.getData()
+                  setFormData(prev => ({ ...prev, content_am: data }))
+                }}
+                config={{
+                  // Explicit heading levels so Enter creates separate <h2>, <h3>, <h4> blocks
+                  heading: {
+                    options: [
+                      { model: 'paragraph', view: 'p',  title: 'Paragraph' },
+                      { model: 'heading2',  view: 'h2', title: 'Heading 2' },
+                      { model: 'heading3',  view: 'h3', title: 'Heading 3' },
+                      { model: 'heading4',  view: 'h4', title: 'Heading 4' },
+                    ]
+                  },
+                  toolbar: [
+                    'heading', '|',
+                    'bold', 'italic', 'link', '|',
+                    'bulletedList', 'numberedList', '|',
+                    'outdent', 'indent', '|',
+                    'blockQuote', '|',
+                    'undo', 'redo'
+                  ],
+                  placeholder: 'Write your article content here...',
+                  height: '400px'
+                }}
+                onReady={editor => {
+                  // Set editor height and text color
+                  editor.editing.view.change(writer => {
+                    writer.setStyle(
+                      'min-height',
+                      '400px',
+                      editor.editing.view.document.getRoot()
+                    )
+                    writer.setStyle(
+                      'color',
+                      '#1f2937',
+                      editor.editing.view.document.getRoot()
+                    )
+                  })
+                }}
+                disabled={isSubmitting}
+              />
+            </div>
           </div>
 
           {/* Tags */}

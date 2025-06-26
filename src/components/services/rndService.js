@@ -18,7 +18,9 @@ export const rndService = {
     const payload = new FormData();
 
     payload.append("title", formData.title);
+    payload.append("title_am", formData.title_am);
     payload.append("description", formData.description);
+    payload.append("description_am", formData.description_am);
     payload.append("link", formData.link);
     payload.append("author", formData.author);
     payload.append("tags", formData.tags);
@@ -51,7 +53,9 @@ export const rndService = {
     const payload = new FormData();
 
     payload.append("title", formData.title);
+    payload.append("title_am", formData.title_am);
     payload.append("description", formData.description);
+    payload.append("description_am", formData.description_am);
     payload.append("link", formData.link);
     payload.append("author", formData.author);
     payload.append("tags", formData.tags);

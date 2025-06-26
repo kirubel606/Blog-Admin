@@ -11,7 +11,9 @@ function RNDForm({ rnd, onClose, onSubmit }) {
   const [catLoading, setCatLoading] = useState(true)
   const [formData, setFormData] = useState({
     title: "",
+    title_am:"",
     description: "",
+    description_am:"",
     link: "",
     coverimage: null,
     logo: null,
@@ -43,7 +45,9 @@ function RNDForm({ rnd, onClose, onSubmit }) {
     if (rnd) {
       setFormData({
         title: rnd.title || "",
+        title_am: rnd.title_am || "",
         description: rnd.description || "",
+        description_am: rnd.description_am || "",
         link: rnd.link || "",
         coverimage: rnd.coverimage || null,
         logo: rnd.logo || null,
@@ -105,7 +109,9 @@ function RNDForm({ rnd, onClose, onSubmit }) {
         <form onSubmit={handleSubmit} className="p-6 space-y-6" encType="multipart/form-data">
           {[
             { key: "title", label: "Title", type: "text" },
+            { key: "title_am", label: "Amharic Title", type: "text" },
             { key: "description", label: "Description", type: "textarea" },
+            { key: "description_am", label: "Amharic Description", type: "textarea" },
             { key: "link", label: "Link", type: "text" },
             { key: "author", label: "Author", type: "text" },
             { key: "tags", label: "Tags (comma-separated)", type: "text" },
