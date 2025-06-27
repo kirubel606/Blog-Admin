@@ -51,7 +51,7 @@ function NewsPage() {
       setArticles(Array.isArray(data) ? data : [])
     } catch (error) {
       console.error('Failed to load articles:', error)
-      setError(err?.response?.data?.detail || 'Failed to load articles. Please try again.');
+      setError(error?.response?.data?.detail || 'Failed to load articles. Please try again.');
       setArticles([]) // Set empty array on error
     } finally {
       setLoading(false)
@@ -69,7 +69,7 @@ function NewsPage() {
       setArticles(Array.isArray(data) ? data : [])
     } catch (error) {
       console.error('Failed to search articles:', error)
-      setError(err?.response?.data?.detail || 'Failed to search articles. Please try again.');
+      setError(error?.response?.data?.detail || 'Failed to search articles. Please try again.');
       setArticles([]) // Set empty array on error
     } finally {
       setIsSearching(false)
