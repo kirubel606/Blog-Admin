@@ -86,17 +86,9 @@ function Navbar({ user, onLogout, onToggleSidebar }) {
                 <div className="px-4 py-2 border-b border-gray-100">
                   <p className="text-sm font-medium text-gray-900">{user.name}</p>
                   <p className="text-xs text-gray-500">{user.email}</p>
+                  <p className="text-xs text-gray-500">Admin: {user.is_admin ?(<>True</>):(<>False</>)}</p>
+                  <p className="text-xs text-gray-500">Staff: {user.is_staff ? (<>True</>):(<>False</>)}</p>
                 </div>
-
-                <button className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                  <User className="w-4 h-4" />
-                  <span>Profile</span>
-                </button>
-
-                <button className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                  <Settings className="w-4 h-4" />
-                  <span>Settings</span>
-                </button>
 
                 <hr className="my-2" />
 
