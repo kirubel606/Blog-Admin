@@ -15,9 +15,11 @@ export const newsService = {
   },
 
   // Get user's news articles
-  async getUserNews() {
+  async getUserNews(query=null) {
     // GET {API_BASE_URL}/news/usernews/
-    const { data } = await axiosInstance.get("/news/usernews/")
+    const { data } = await axiosInstance.get("/news/usernews/", {
+      params: { status: query },
+    });
     if (data.results?.result) return data.results.result
     if (Array.isArray(data)) return data
     return data.results || []

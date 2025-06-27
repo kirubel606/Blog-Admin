@@ -37,7 +37,7 @@ function EventsPage() {
         setEvents(Array.isArray(data) ? data : [])
       } catch (error) {
         console.error('Failed to load events:', error)
-        setError('Failed to load events. Please try again.')
+        setError(error?.response?.data?.detail || 'Failed to load events. Please try again.');
         setEvents([]) // Set empty array on error
       } finally {
         setLoading(false)
@@ -63,7 +63,7 @@ function EventsPage() {
         setEditingEvent(null)
       } catch (error) {
         console.error('Failed to save event:', error)
-        setError('Failed to save event. Please try again.')
+        setError(error?.response?.data?.detail || 'Failed to save event. Please try again.');
       }
     }
   
@@ -76,7 +76,7 @@ function EventsPage() {
         setShowEventForm(true)
       } catch (error) {
         console.error('Failed to load article details:', error)
-        setError('Failed to load article details. Please try again.')
+        setError(error?.response?.data?.detail || 'Failed to load article details. Please try again.');
       }
     }
   
@@ -92,10 +92,18 @@ function EventsPage() {
         setEvents(prev => prev.filter(event => event.id !== eventId))
       } catch (error) {
         console.error('Failed to delete article:', error)
-        setError('Failed to delete article. Please try again.')
+        setError(error?.response?.data?.detail || 'Failed to delete article. Please try again.');
       }
     }
-
+    useEffect(() => {
+      if (error) {
+        const timer = setTimeout(() => {
+          setError(null);
+        }, 3000); // show for 3 seconds
+    
+        return () => clearTimeout(timer); // cleanup if component unmounts or error changes
+      }
+    }, [error]);
 
   return (
     <div className="space-y-6">
@@ -228,6 +236,12 @@ function EventsPage() {
           onSubmit={handleEventSubmit}
         />
       )}
+
+{error && (
+      <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[9999] bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg animate-bounce">
+        {error}
+      </div>
+    )}
     </div>
   )
 }

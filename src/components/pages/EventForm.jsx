@@ -79,7 +79,7 @@ function EventForm({ event, onClose, onSubmit }) {
     try {
       await onSubmit(formData)
     } catch (err) {
-      setError("Something went wrong, please try again.")
+      setError(err?.response?.data?.detail || 'Something went wrong, please try again.');
     } finally {
       setIsSubmitting(false)
     }

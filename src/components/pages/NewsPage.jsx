@@ -11,13 +11,13 @@ function NewsPage() {
   const [showArticleForm, setShowArticleForm] = useState(false)
   const [editingArticle, setEditingArticle] = useState(null)
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedStatus, setSelectedStatus] = useState("All")
+  const [selectedStatus, setSelectedStatus] = useState("all")
   const [isSearching, setIsSearching] = useState(false)
 
   // Load articles on component mount
   useEffect(() => {
     loadArticles()
-  }, [])
+  }, [selectedStatus])
 
   // Handle search with debouncing
   useEffect(() => {
@@ -32,16 +32,26 @@ function NewsPage() {
     return () => clearTimeout(debounceTimer)
   }, [searchTerm])
 
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError(null);
+      }, 3000); // show for 3 seconds
+  
+      return () => clearTimeout(timer); // cleanup if component unmounts or error changes
+    }
+  }, [error]);
+
   const loadArticles = async () => {
     try {
       setLoading(true)
       setError(null)
-      const data = await newsService.getAllNews()
+      const data = await newsService.getUserNews(selectedStatus)
       // Ensure we always have an array
       setArticles(Array.isArray(data) ? data : [])
     } catch (error) {
       console.error('Failed to load articles:', error)
-      setError('Failed to load articles. Please try again.')
+      setError(err?.response?.data?.detail || 'Failed to load articles. Please try again.');
       setArticles([]) // Set empty array on error
     } finally {
       setLoading(false)
@@ -59,7 +69,7 @@ function NewsPage() {
       setArticles(Array.isArray(data) ? data : [])
     } catch (error) {
       console.error('Failed to search articles:', error)
-      setError('Failed to search articles. Please try again.')
+      setError(err?.response?.data?.detail || 'Failed to search articles. Please try again.');
       setArticles([]) // Set empty array on error
     } finally {
       setIsSearching(false)
@@ -84,7 +94,7 @@ function NewsPage() {
       setEditingArticle(null)
     } catch (error) {
       console.error('Failed to save article:', error)
-      setError('Failed to save article. Please try again.')
+      setError(error?.response?.data?.detail || 'Failed to save articles. Please try again.');
     }
   }
 
@@ -97,7 +107,7 @@ function NewsPage() {
       setShowArticleForm(true)
     } catch (error) {
       console.error('Failed to load article details:', error)
-      setError('Failed to load article details. Please try again.')
+      setError(error?.response?.data?.detail || 'Failed to load article details. Please try again.');
     }
   }
 
@@ -113,20 +123,12 @@ function NewsPage() {
       setArticles(prev => prev.filter(article => article.id !== articleId))
     } catch (error) {
       console.error('Failed to delete article:', error)
-      setError('Failed to delete article. Please try again.')
+      setError(error?.response?.data?.detail || 'Failed to delete article. Please try again.');
     }
   }
 
   // Safe filtering with proper null checks
-  const filteredArticles = articles.filter((article) => {
-    if (!article) return false
-    
-    const matchesStatus = selectedStatus === "All" || 
-      (article.status && article.status.toLowerCase() === selectedStatus.toLowerCase()) ||
-      (article.status === "publish" && selectedStatus.toLowerCase() === "published")
-    
-    return matchesStatus
-  })
+  const filteredArticles = articles
 
   // Helper function to get full image URL
   const getImageUrl = (imagePath) => {
@@ -201,9 +203,9 @@ function NewsPage() {
             className="px-4 py-2 border text-gray-900 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             disabled={loading}
           >
-            <option value="All">All Status</option>
-            <option value="Published">Published</option>
-            <option value="Draft">Draft</option>
+            <option value="all">All Status</option>
+            <option value="publish">Published</option>
+            <option value="draft">Draft</option>
           </select>
         </div>
       </div>
@@ -329,6 +331,12 @@ function NewsPage() {
           onSubmit={handleArticleSubmit}
         />
       )}
+
+    {error && (
+      <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[9999] bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg animate-bounce">
+        {error}
+      </div>
+    )}
     </div>
   )
 }

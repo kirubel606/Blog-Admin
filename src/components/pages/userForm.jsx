@@ -2,8 +2,10 @@
 import { useState, useEffect } from "react";
 import { Dialog } from "@headlessui/react";
 import axiosInstance from "../../api"; // adjust path if needed
+import { useAuth } from "../../context/AuthContext" // adjust path
 
 export default function UserFormModal({ isOpen, onClose, onSubmit, editingUser }) {
+  const { user } = useAuth()
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -206,8 +208,12 @@ export default function UserFormModal({ isOpen, onClose, onSubmit, editingUser }
               </label>
             </div>
 
-            <div>
-              <h3 className="font-semibold mb-2">Permissions</h3>
+            <div
+              className={`${
+                user.id === editingUser.id ? 'pointer-events-none opacity-50 blur-sm' : ''
+              }`}
+            >              
+            <h3 className="font-semibold mb-2">Permissions</h3>
               <div className="max-h-40 overflow-y-auto border p-2 rounded space-y-1 bg-gray-50">
                 {loadingPermissions ? (
                   <p>Loading permissions...</p>
