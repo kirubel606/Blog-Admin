@@ -39,9 +39,11 @@ async createEvent(formData) {
     payload.append("type", formData.type);       // 'conference' | 'webinar' | 'workshop'
     payload.append("status", formData.status);   // 'upcoming' | 'cancelled'
   
-    // Append image only if it's a file
-    if (formData.image instanceof File) {
-      payload.append("image", formData.image);
+    // Append images (if any)
+    if (formData.images && formData.images.length > 0) {
+      formData.images.forEach((img, i) => {
+        payload.append(`images`, img)
+      })
     }
   
     // Optional: only if timestamp is provided manually
@@ -71,11 +73,20 @@ async updateEvent(eventId, formData) {
     payload.append("type", formData.type);       // 'conference', 'webinar', or 'workshop'
     payload.append("status", formData.status);   // 'upcoming' or 'cancelled'
   
-    // Only append if it's a new image file
-    if (formData.image instanceof File) {
-      payload.append("image", formData.image);
+    // ✅ Add new image files only
+    if (formData.images && formData.images.length > 0) {
+      formData.images.forEach((img) => {
+        if (img instanceof File) {
+          payload.append("images", img)
+        }
+      })
     }
-  
+      // ✅ Inform backend of removed existing images (URLs or IDs)
+      if (formData.removedImages && formData.removedImages.length > 0) {
+        formData.removedImages.forEach((imgUrlOrId) => {
+          payload.append("removed_images", imgUrlOrId)
+        })
+      }
     // Optional: if backend allows sending timestamp manually
     if (formData.timestamp) {
       payload.append("timestamp", formData.timestamp);

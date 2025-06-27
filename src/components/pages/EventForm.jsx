@@ -19,7 +19,9 @@ function EventForm({ event, onClose, onSubmit }) {
     venue: "",
     venue_am:"",
     video_link: "",
-    image: null,
+    images: [],           // new uploads
+    existingImages: [],   // old images (URLs or objects)
+    removedImages: [],    // 🆕 track removed existing ones
     is_live: false,
     start_date: "",  // user must select
     end_date: "",    // user must select
@@ -28,7 +30,6 @@ function EventForm({ event, onClose, onSubmit }) {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState(null)
-
   // Load categories on mount
   useEffect(() => {
     const fetchCategories = async () => {
@@ -65,6 +66,10 @@ function EventForm({ event, onClose, onSubmit }) {
         end_date: event.end_date ? event.end_date.slice(0,16) : "",
         type: event.type || "",
         status: event.status || "",
+        images: [], // new uploads
+        existingImages: event.images || [], // array of URLs or image data
+        removedImages: [],  // <<< Initialize it here too!
+
       })
     }
   }, [event])
@@ -86,14 +91,27 @@ function EventForm({ event, onClose, onSubmit }) {
   }
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      setFormData(prev => ({
-        ...prev,
-        image: file
-      }))
-    }
+    const files = Array.from(e.target.files)
+    setFormData(prev => ({
+      ...prev,
+      images: [...prev.images, ...files],
+    }))
   }
+
+  const removeImage = (fileName) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter(file => file.name !== fileName),
+    }))
+  }
+  const removeExistingImage = (url) => {
+    setFormData(prev => ({
+      ...prev,
+      existingImages: prev.existingImages.filter(img => img !== url),
+      removedImages: [...prev.removedImages, url.image],  // ✅ track removed
+    }))
+  }
+
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
@@ -325,45 +343,78 @@ function EventForm({ event, onClose, onSubmit }) {
           </div>
 
           {/* Event Image */}
+          {/* Images Upload */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Event Image
+              Event Images
             </label>
-            <div className="mt-1">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="block w-full text-sm text-gray-500
-                  file:mr-4 file:py-2 file:px-4
-                  file:rounded-lg file:border-0
-                  file:text-sm file:font-semibold
-                  file:bg-primary file:text-white
-                  hover:file:bg-secondary/80"
-                {...(!event && { required: true })} 
-              />
-              {formData.image && (
-                <div className="mt-2 relative inline-block">
-                  <img
-                    src={
-                      typeof formData.image === "string"
-                        ? formData.image // For existing image URL (edit mode)
-                        : URL.createObjectURL(formData.image) // For new uploads
-                    }
-                    alt="Event preview"
-                    className="h-32 w-auto object-cover rounded-lg"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setFormData(prev => ({ ...prev, image: null }))}
-                    className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              )}
-            </div>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImageChange}
+              className="block w-full text-sm text-gray-500
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-lg file:border-0
+                file:text-sm file:font-semibold
+                file:bg-primary file:text-white
+                hover:file:bg-primary/80"
+            />
           </div>
+
+          {/* Existing Images */}
+          {formData.existingImages.length > 0 && (
+            <div className="mt-4">
+              <p className="text-sm font-medium text-gray-700 mb-2">Existing Images</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {formData.existingImages.map((url, idx) => (
+                  <div key={idx} className="relative group">
+                    <div className="aspect-w-4 aspect-h-3 rounded-lg overflow-hidden">
+                      <img
+                        src={url.image}
+                        alt={`Existing Image ${idx}`}
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeExistingImage(url)}
+                        className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* New Uploaded Images */}
+          {formData.images.length > 0 && (
+            <div className="mt-4">
+              <p className="text-sm font-medium text-gray-700 mb-2">New Images</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {formData.images.map((file) => (
+                  <div key={file.name} className="relative group">
+                    <div className="aspect-w-4 aspect-h-3 rounded-lg overflow-hidden">
+                      <img
+                        src={URL.createObjectURL(file)}
+                        alt={file.name}
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(file.name)}
+                        className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Is Live */}
           <div className="flex items-center">
