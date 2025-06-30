@@ -12,8 +12,12 @@ import UsersPage from "./pages/UsersPage.jsx"
 import AnalyticsPage from "./pages/AnalyticsPage.jsx"
 import SettingsPage from "./pages/SettingsPage.jsx"
 import VacancyPage from "./pages/VacancyPage.jsx"
+import CategoryPage from "./pages/CategoryPage.jsx"
+import CollaborationsPage from "./pages/CollaborationsPage.jsx"
 import ResourcePage from "./pages/ResourcePage.jsx"
 import RND from "./pages/RND.jsx"
+import QuotesPage from "./pages/QuotesPage.jsx"
+import FaqPage from "./pages/FaqPage.jsx"
 
 function Dashboard({ user, onLogout }) {
   const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -43,6 +47,14 @@ function Dashboard({ user, onLogout }) {
         return <SettingsPage />
       case "Vacancies":
         return <VacancyPage />
+      case "Categories":
+        return <CategoryPage />
+      case "Collaborations":
+        return <CollaborationsPage />
+      case "Quotes":
+        return <QuotesPage />
+      case "FAQ":
+        return <FaqPage />
       default:
         return <DashboardContent />
     }

@@ -10,25 +10,36 @@ import {
   Users,
   BarChart3,
   Briefcase,
+  ChartBarBig,
+  MessageCircleCode,
+  MessageCircleQuestion,
+  MessageSquareQuote,
   ChevronLeft,
   ChevronRight,
   BookOpen,
   BrainCircuit,
 } from "lucide-react"
+import { useAuth } from "../context/AuthContext" // adjust path
 
+
+function Sidebar({ isOpen, onToggle, currentPage, onPageChange }) {
+  const {user} = useAuth();
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard" },
+  ...(user.is_admin ? [{ icon: Users, label: "Users" }] : []),
   { icon: Newspaper, label: "News" },
   { icon: Calendar, label: "Events" },
   { icon: BookOpen, label: "Resources" },
   { icon: BrainCircuit, label: "R&D" },
   { icon: ImageIcon, label: "Gallery" },
   { icon: Briefcase, label: "Vacancies" },
-  { icon: Users, label: "Users" },
+  {icon: ChartBarBig, label: "Categories"},
+  {icon: MessageCircleCode, label: "Collaborations"},
+  {icon: MessageCircleQuestion, label: "FAQ"},
+  {icon: MessageSquareQuote, label: "Quotes"},
   { icon: Settings, label: "Settings" },
-]
+];
 
-function Sidebar({ isOpen, onToggle, currentPage, onPageChange }) {
   return (
     <div
       className={`fixed left-0 top-0 h-full bg-[#2a2d7a] text-white transition-all duration-300 z-40 ${isOpen ? "w-64" : "w-16"}`}
@@ -43,7 +54,7 @@ function Sidebar({ isOpen, onToggle, currentPage, onPageChange }) {
             <span className="font-bold text-white text-lg">AdminHub</span>
           </div>
         )}
-        <button onClick={onToggle} className="p-2 rounded-lg hover:bg-white/10 transition-colors">
+        <button onClick={onToggle} className="p-0 rounded-lg hover:bg-white/10 transition-colors">
           {isOpen ? <ChevronLeft className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
         </button>
       </div>
@@ -59,7 +70,7 @@ function Sidebar({ isOpen, onToggle, currentPage, onPageChange }) {
               <li key={item.label}>
                 <button
                   onClick={() => onPageChange(item.label)}
-                  className={`w-full flex items-center space-x-3 px-3 py-3 rounded-xl transition-all duration-200 group ${
+                  className={`w-full flex items-center space-x-3 px-2 py-2 rounded-xl transition-all duration-200 group ${
                     isActive ? "bg-[#FF6B00] text-[#1a1d4e] shadow-lg" : "hover:bg-white/10 text-white hover:text-white"
                   }`}
                   title={!isOpen ? item.label : ""}
