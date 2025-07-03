@@ -5,6 +5,7 @@ import { Plus, Calendar, MapPin, Users, Clock, Filter,AlertCircle ,Search,Edit,T
 import RNDForm from "./RNDForm"
 import { rndService } from "../services/rndService"
 import {formatDate,formatTime} from "../services/formatdate"
+import axios from "axios"
 const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
 
@@ -16,7 +17,22 @@ function RND() {
   const [selectedType, setSelectedType] = useState("All")
   const [selectedStatus, setSelectedStatus] = useState("All")
   const [showRndForm, setShowRndForm] = useState(false)
+  const [categories,setCategories] = useState([])
 
+      // Fetch categories on mount
+      useEffect(() => {
+        const fetchCategories = async () => {
+          const apiUrl = `${BACKEND_BASE_URL}/categories/`
+          try {
+            const res = await axios.get(apiUrl)
+            setCategories(Array.isArray(res.data) ? res.data : [])
+          } catch (err) {
+            console.error("Error fetching categories:", err)
+            setCategories([])
+          }
+        }
+        fetchCategories()
+      }, [])
   const filteredRnd = rnd.filter((rnd) => {
     const matchesType = selectedType === "All" || rnd.type === selectedType
     const matchesStatus = selectedStatus === "All" || rnd.status === selectedStatus
@@ -143,13 +159,14 @@ function RND() {
               <div className="flex items-center justify-between mb-4">
 
                 <span className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">
-                  {rnd.category}
+                  {
+                    categories.find((cat) => cat.id === rnd.category)?.name
+                  }
                 </span>
               </div>
 
               <h3 className="text-xl font-semibold text-gray-900 mb-3">{rnd.title}</h3>
               <p className="text-gray-600 text-sm mb-4">{rnd.description.length > 90? `${rnd.description.slice(0, 90)}...`: rnd.description}</p>
-
               <div className="space-y-2">
                 <div className="flex items-center space-x-2 text-sm text-gray-600">
                   <Calendar className="w-4 h-4" />

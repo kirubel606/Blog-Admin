@@ -19,7 +19,6 @@ function GalleryPage() {
     loadGallery()
   }, [])
   
-  
     const loadGallery = async () => {
       try {
         setLoading(true)
@@ -179,6 +178,7 @@ function GalleryPage() {
                   caption_am: editingGallery.caption_am,
                   discription: editingGallery.discription,
                   discription_am: editingGallery.discription_am,
+                  category: editingGallery.category,
                   images: editingGallery.images.map((img) => img.image)
                 }
               : null

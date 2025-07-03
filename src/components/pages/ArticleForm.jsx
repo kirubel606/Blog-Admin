@@ -21,7 +21,9 @@ function ArticleForm({ article, onClose, onSubmit }) {
     tags: "",
     status: "draft",
     hasVideo: false,
-    iframe: ""
+    iframe: "",
+    magazine:false,
+    pdf_file:null,
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState(null)
@@ -61,7 +63,9 @@ function ArticleForm({ article, onClose, onSubmit }) {
         tags: Array.isArray(article.tags) ? article.tags.join(', ') : (article.tags || ""),
         status: article.status === "publish" ? "published" : (article.status || "draft"),
         hasVideo: !!article.iframe,
-        iframe: article.iframe || ""
+        iframe: article.iframe || "",
+        magazine:article.magazine,
+        pdf_file:article.pdf_file || null,
       })
     }
   }, [article])
@@ -168,6 +172,21 @@ const handleSubmit = async (e) => {
     }))
     setError(null)
   }
+  const handlePDFChange = (e) => {
+    const file = e.target.files[0];
+    if (!file || file.type !== 'application/pdf') {
+      setError('Only PDF files are allowed');
+      return;
+    }
+  
+    setFormData(prev => ({
+      ...prev,
+      pdf_file: file
+    }));
+    setError(null);
+  };
+  
+  
 
   const getCoverImageSrc = () => {
     if (formData.cover_image instanceof File) {
@@ -197,6 +216,24 @@ const handleSubmit = async (e) => {
         return image
       }
       return BACKEND_BASE_URL+`${image}`
+    }
+    return null
+  }
+  const getPDFSRC = (pdf) => {
+    if (pdf instanceof File) {
+      return URL.createObjectURL(pdf)
+    }
+    if (typeof pdf === 'object' && pdf.pdf) {
+      if (pdf.pdf.startsWith('http')) {
+        return pdf.pdf
+      }
+      return BACKEND_BASE_URL+`${pdf.pdf}`
+    }
+    if (typeof pdf === 'string') {
+      if (pdf.startsWith('http')) {
+        return pdf
+      }
+      return BACKEND_BASE_URL+`${pdf}`
     }
     return null
   }
@@ -534,7 +571,56 @@ const handleSubmit = async (e) => {
               disabled={isSubmitting}
             />
           </div>
-
+          <div>
+          <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="hasVideo"
+                checked={formData.magazine}
+                onChange={(e) => setFormData(prev => ({ ...prev, magazine: e.target.checked }))}
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                disabled={isSubmitting}
+              />
+              <label htmlFor="hasVideo" className="ml-2 block text-sm font-medium text-gray-700">
+                Is Magazine
+              </label>
+            </div>
+          </div>
+          {/* PDF File */}
+          <div>
+            <label className={formData.magazine ? "block text-sm font-medium text-gray-700 mb-2":"hidden"}>
+              PDF FILE
+            </label>
+            <div className="mt-1">
+              <input
+                type="file"
+                accept="application/pdf"
+                onChange={handlePDFChange}
+                className={`block w-full text-sm ${
+                  formData.magazine
+                    ? "text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+                    : "cursor-not-allowed opacity-50 hidden"
+                }`}
+                disabled={isSubmitting}
+              />
+              {formData.pdf_file && (
+                <div className="relative mt-2 w-40 h-32 inline-block">
+                  <iframe
+                    src={getPDFSRC(formData.pdf_file)}
+                    className="w-full h-full rounded-lg border shadow"
+                    title="PDF Preview"
+                  />
+                  <a
+                    href={getPDFSRC(formData.pdf_file)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="absolute inset-0 z-10"
+                    aria-label="Open PDF in new tab"
+                  ></a>
+                </div>
+              )}
+            </div>
+          </div>
           {/* Status */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">

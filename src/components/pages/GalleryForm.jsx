@@ -11,6 +11,7 @@ function GalleryForm({ onClose, onSubmit, initialData = null }) {
     discription_am:"",
     caption: "",
     caption_am: "",
+    category: "",
     images: [],           // new uploads
     existingImages: [],   // old images (URLs or objects)
     removedImages: [],    // 🆕 track removed existing ones
@@ -26,13 +27,13 @@ function GalleryForm({ onClose, onSubmit, initialData = null }) {
         discription_am: initialData.discription_am || "",
         caption: initialData.caption || "",
         caption_am: initialData.caption_am || "",
+        category: initialData.category || "",
         images: [], // new uploads
         existingImages: initialData.images || [], // array of URLs or image data
         removedImages: [],  // <<< Initialize it here too!
       })
     }
   }, [initialData])
-
   const handleSubmit = (e) => {
     e.preventDefault()
     onSubmit(formData)
@@ -159,7 +160,24 @@ function GalleryForm({ onClose, onSubmit, initialData = null }) {
               rows={3}
             />
           </div>
-
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Category
+            </label>
+            <select
+              value={formData.category}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, category: e.target.value }))
+              }
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
+            >
+              <option value="">Select Category</option>
+              <option value="DATA_CENTER">Data Center</option>
+              <option value="SHOWROOM">Showroom</option>
+              <option value="SUMMER_CAMP">Summer Camp</option>
+              <option value="MOU">MOU</option>
+            </select>
+          </div>
           {/* Images Upload */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">

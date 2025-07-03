@@ -107,35 +107,49 @@ function RNDForm({ rnd, onClose, onSubmit }) {
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6" encType="multipart/form-data">
-          {[
-            { key: "title", label: "Title", type: "text" },
-            { key: "title_am", label: "Amharic Title", type: "text" },
-            { key: "description", label: "Description", type: "textarea" },
-            { key: "description_am", label: "Amharic Description", type: "textarea" },
-            { key: "link", label: "Link", type: "text" },
-            { key: "author", label: "Author", type: "text" },
-            { key: "tags", label: "Tags (comma-separated)", type: "text" },
-            { key: "type", label: "Type (e.g., development, research)", type: "text" }
-          ].map(({ key, label, type }) => (
-            <div key={key}>
-              <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
-              {type === "textarea" ? (
-                <textarea
-                  value={formData[key]}
-                  onChange={(e) => setFormData(prev => ({ ...prev, [key]: e.target.value }))}
-                  rows="4"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
-                />
-              ) : (
-                <input
-                  type={type}
-                  value={formData[key]}
-                  onChange={(e) => setFormData(prev => ({ ...prev, [key]: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
-                />
-              )}
-            </div>
-          ))}
+        {[
+          { key: "title", label: "Title", type: "text" },
+          { key: "title_am", label: "Amharic Title", type: "text" },
+          { key: "description", label: "Description", type: "textarea" },
+          { key: "description_am", label: "Amharic Description", type: "textarea" },
+          { key: "link", label: "Link", type: "text" },
+          { key: "author", label: "Author", type: "text" },
+          { key: "tags", label: "Tags (comma-separated)", type: "text" },
+          { key: "type", label: "Type", type: "select" }, // 👈 change here
+        ].map(({ key, label, type }) => (
+          <div key={key}>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
+
+            {key === "type" ? (
+              <select
+                value={formData[key] || ""}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, [key]: e.target.value }))
+                }
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
+              >
+                <option value="">Select Type</option>
+                <option value="research">Research</option>
+                <option value="development">Development</option>
+                <option value="case_study">Case Study</option>
+              </select>
+            ) : type === "textarea" ? (
+              <textarea
+                value={formData[key]}
+                onChange={(e) => setFormData((prev) => ({ ...prev, [key]: e.target.value }))}
+                rows="4"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
+              />
+            ) : (
+              <input
+                type={type}
+                value={formData[key]}
+                onChange={(e) => setFormData((prev) => ({ ...prev, [key]: e.target.value }))}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
+              />
+            )}
+          </div>
+        ))}
 
           {/* Category Select */}
           <div>

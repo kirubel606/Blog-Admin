@@ -65,12 +65,16 @@ export const newsService = {
     payload.append("content_am", formData.content_am)
     payload.append("tags", formData.tags)
     payload.append("status", formData.status)
+    payload.append("magazine", formData.magazine)
 
     if (formData.hasVideo && formData.iframe) {
       payload.append("iframe", formData.iframe)
     }
     if (formData.cover_image) {
       payload.append("cover_image", formData.cover_image)
+    }
+    if (formData.pdf_file) {
+      payload.append("pdf_file", formData.pdf_file)
     }
     // append each image file under the same key "images"
     formData.images?.forEach((img) => payload.append("images", img))
@@ -92,6 +96,8 @@ export const newsService = {
     payload.append("content_am", formData.content_am)
     payload.append("tags", formData.tags)
     payload.append("status", formData.status)
+    payload.append("magazine", formData.magazine)
+
 
     if (formData.hasVideo && formData.iframe) {
       payload.append("iframe", formData.iframe)
@@ -100,6 +106,10 @@ export const newsService = {
     if (formData.cover_image instanceof File) {
       payload.append("cover_image", formData.cover_image)
     }
+    if (formData.pdf_file) {
+      payload.append("pdf_file", formData.pdf_file)
+    }
+
     // only append image files that are new
     formData.images
       ?.filter((img) => img instanceof File)

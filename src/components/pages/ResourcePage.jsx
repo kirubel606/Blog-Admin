@@ -6,7 +6,7 @@ import ResourceForm from "./ResourceForm"
 import { resourceService } from "../services/resourceService"
 import {formatDate,formatTime} from "../services/formatdate"
 const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL
-
+import axios from "axios"
 // Mock data - replace with actual API calls
 
 function ResourcePage() {
@@ -19,13 +19,27 @@ function ResourcePage() {
   const [showDetailModal, setShowDetaileModal] = useState(false)
   const [resourceToDelete, setResourceToDelete] = useState(null)
   const [showMenu, setShowMenu] = useState(null)
+  const [categories,setCategories] = useState([])
 
   // Load articles on component mount
   useEffect(() => {
     loadResources()
   }, [])
 
-
+      // Fetch categories on mount
+      useEffect(() => {
+        const fetchCategories = async () => {
+          const apiUrl = `${BACKEND_BASE_URL}/categories/`
+          try {
+            const res = await axios.get(apiUrl)
+            setCategories(Array.isArray(res.data) ? res.data : [])
+          } catch (err) {
+            console.error("Error fetching categories:", err)
+            setCategories([])
+          }
+        }
+        fetchCategories()
+      }, [])
 
   const handleDelete = (resource) => {
     setResourceToDelete(resource)
@@ -58,28 +72,31 @@ function ResourcePage() {
       }
     }
 
-
     const handleResourceSubmit = async (formData) => {
       try {
         setError(null)
-        
+    
         if (selectedResource) {
           // Update existing article
           await resourceService.updateResource(selectedResource.id, formData)
+          alert("Resource updated successfully!") // 👈 success alert
         } else {
           // Create new article
           await resourceService.createResource(formData)
+          alert("Resource created successfully!") // 👈 success alert
         }
-        
-        // Reload articles and close form
-        await loadEvents()
+    
+        // Refresh list and close form
+        await loadResources()
         setShowResourceForm(false)
         setSelectedResource(null)
+    
       } catch (error) {
         console.error('Failed to save event:', error)
         setError('Failed to save event. Please try again.')
       }
     }
+    
   
     const handleEdit = async (resource) => {
       try {
@@ -189,7 +206,10 @@ function ResourcePage() {
                 <span className="font-medium">Published:</span> {formatDate(resource.published_at)}
               </p>
               <p className="text-sm text-gray-600">
-                <span className="font-medium">Category:</span> {resource.category}
+                <span className="font-medium">Category:</span> 
+                  {
+                    categories.find((cat) => cat.id === resource.category)?.name
+                  }
               </p>
               <p className="text-sm text-gray-600">
                 <span className="font-medium">Type:</span> {resource.classification.replace('_', ' ').toUpperCase()}
