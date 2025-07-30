@@ -18,6 +18,7 @@ import ResourcePage from "./pages/ResourcePage.jsx"
 import RND from "./pages/RND.jsx"
 import QuotesPage from "./pages/QuotesPage.jsx"
 import FaqPage from "./pages/FaqPage.jsx"
+import ContactsPage from "./pages/ContactsPage.jsx"
 
 function Dashboard({ user, onLogout }) {
   const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -51,6 +52,8 @@ function Dashboard({ user, onLogout }) {
         return <CategoryPage />
       case "Collaborations":
         return <CollaborationsPage />
+      case "Contacts":
+        return <ContactsPage />
       case "Quotes":
         return <QuotesPage />
       case "FAQ":

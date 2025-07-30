@@ -35,6 +35,7 @@ const menuItems = [
   { icon: Briefcase, label: "Vacancies" },
   {icon: ChartBarBig, label: "Categories"},
   {icon: MessageCircleCode, label: "Collaborations"},
+  {icon: MessageCircleCode, label: "Contacts"},
   {icon: MessageCircleQuestion, label: "FAQ"},
   {icon: MessageSquareQuote, label: "Quotes"},
   { icon: Settings, label: "Settings" },
