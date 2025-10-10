@@ -37,7 +37,7 @@ export function AuthProvider({ children }) {
   const refreshAccessToken = async (refreshOverride) => {
     const refresh = refreshOverride || refreshToken
     try {
-      const res = await fetch(`${BACKEND_BASE_URL}/api/users/user/token/refresh/`, {
+      const res = await fetch(`${BACKEND_BASE_URL}/users/user/token/refresh/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ refresh }),
@@ -69,7 +69,7 @@ export function AuthProvider({ children }) {
   }
 
   const login = async ({ username, password }) => {
-    const res = await fetch(`${BACKEND_BASE_URL}/api/users/user/login/token/`, {
+    const res = await fetch(`${BACKEND_BASE_URL}/users/user/login/token/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),

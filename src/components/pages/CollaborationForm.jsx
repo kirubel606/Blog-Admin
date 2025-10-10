@@ -4,14 +4,15 @@ import { useEffect, useState } from "react"
 import { X } from "lucide-react"
 
 
-function CollaborationForm({ onClose, onSubmit, initialData = null,categoryOptions=[] }) {
+function CollaborationForm({ onClose, onSubmit, initialData = null, categoryOptions = [] }) {
   const [formData, setFormData] = useState({
     logoFile: null,
     logoPreview: "",
     link: "",
     category: "",
+    is_local: true,
   })
-  
+
   useEffect(() => {
     if (initialData) {
       setFormData({
@@ -19,6 +20,8 @@ function CollaborationForm({ onClose, onSubmit, initialData = null,categoryOptio
         logoPreview: initialData.logo || "",
         link: initialData.link || "",
         category: initialData.category || "",
+        is_local: initialData.is_local ?? true,
+
       })
     }
   }, [initialData])
@@ -100,6 +103,22 @@ function CollaborationForm({ onClose, onSubmit, initialData = null,categoryOptio
               ))}
             </select>
           </div>
+          {/* Is Local */}
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="is_local"
+              checked={formData.is_local}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, is_local: e.target.checked }))
+              }
+              className="h-4 w-4 text-primary border-gray-300 rounded"
+            />
+            <label htmlFor="is_local" className="text-sm font-medium text-gray-700">
+              Local Collaboration
+            </label>
+          </div>
+
 
           {/* Actions */}
           <div className="flex justify-end space-x-4 pt-6 border-t">

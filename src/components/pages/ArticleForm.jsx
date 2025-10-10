@@ -196,7 +196,7 @@ const handleSubmit = async (e) => {
       if (formData.cover_image.startsWith('http')) {
         return formData.cover_image
       }
-      return BACKEND_BASE_URL+`${formData.cover_image}`
+      return "http://196.188.240.102:8000"+`${formData.cover_image}`
     }
     return null
   }
@@ -209,13 +209,13 @@ const handleSubmit = async (e) => {
       if (image.image.startsWith('http')) {
         return image.image
       }
-      return BACKEND_BASE_URL+`${image.image}`
+      return "http://196.188.240.102:8000"+`${image.image}`
     }
     if (typeof image === 'string') {
       if (image.startsWith('http')) {
         return image
       }
-      return BACKEND_BASE_URL+`${image}`
+      return "http://196.188.240.102:8000"+`${image}`
     }
     return null
   }
@@ -227,13 +227,13 @@ const handleSubmit = async (e) => {
       if (pdf.pdf.startsWith('http')) {
         return pdf.pdf
       }
-      return BACKEND_BASE_URL+`${pdf.pdf}`
+      return "http://196.188.240.102:8000"+`${pdf.pdf}`
     }
     if (typeof pdf === 'string') {
       if (pdf.startsWith('http')) {
         return pdf
       }
-      return BACKEND_BASE_URL+`${pdf}`
+      return "http://196.188.240.102:8000"+`${pdf}`
     }
     return null
   }

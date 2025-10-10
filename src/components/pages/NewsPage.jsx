@@ -139,7 +139,7 @@ function NewsPage() {
     }
     
     // Assuming your Django server serves media files
-    return BACKEND_BASE_URL+`${imagePath}`
+    return "http://196.188.240.102:8000"+`${imagePath}`
   }
 
   return (

@@ -1,0 +1,9 @@
+
+> my-v0-project@0.1.0 dev
+> vite
+
+
+  VITE v6.3.5  ready in 162 ms
+
+  ➜  Local:   http://localhost:5174/
+  ➜  Network: http://10.100.10.119:5174/
