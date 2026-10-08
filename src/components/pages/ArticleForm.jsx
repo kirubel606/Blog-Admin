@@ -3,9 +3,9 @@ import { X, Loader2 } from "lucide-react"
 import { CKEditor } from '@ckeditor/ckeditor5-react'
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
 import axios from 'axios'
-const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL
+const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api"
 
-function ArticleForm({ article, onClose, onSubmit }) {
+function ArticleForm({ article, onClose, onSubmit, entityName = "Article" }) {
   const [categories, setCategories] = useState([])
   const [catLoading, setCatLoading] = useState(true)
   const [formData, setFormData] = useState({
@@ -98,6 +98,18 @@ const handleSubmit = async (e) => {
   setError(null)
 
   try {
+    if (!formData.title || formData.title.trim().length < 10) {
+      setError(`${entityName} title must be at least 10 characters long.`)
+      setIsSubmitting(false)
+      return
+    }
+
+    if (!formData.category) {
+      setError('Please select a category.')
+      setIsSubmitting(false)
+      return
+    }
+
     // Find the selected category object by ID
     const selectedCat = categories.find(
       c => c.id.toString() === formData.category
@@ -114,9 +126,14 @@ const handleSubmit = async (e) => {
     }
 
     await onSubmit(submitData)
-  } catch (error) {
-    console.error('Form submission error:', error)
-    setError('Failed to save article. Please try again.')
+  } catch (err) {
+    console.error('Form submission error:', err)
+    const msg = err?.response?.data?.detail || 
+      (typeof err?.response?.data?.message === 'string' ? err.response.data.message : null) || 
+      (err?.response?.data ? JSON.stringify(err.response.data) : null) || 
+      err?.message || 
+      `Failed to save ${entityName.toLowerCase()}. Please try again.`
+    setError(msg)
   } finally {
     setIsSubmitting(false)
   }
@@ -244,7 +261,7 @@ const handleSubmit = async (e) => {
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
           <h2 className="text-2xl font-bold text-gray-900">
-            {article ? 'Edit Article' : 'Create New Article'}
+            {article ? `Edit ${entityName}` : `Create New ${entityName}`}
           </h2>
           <button
             onClick={onClose}
@@ -274,8 +291,7 @@ const handleSubmit = async (e) => {
               value={formData.title}
               onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-              placeholder="Enter article title"
-              required
+              placeholder={`Enter ${entityName.toLowerCase()} title`}
               disabled={isSubmitting}
             />
           </div>
@@ -321,7 +337,7 @@ const handleSubmit = async (e) => {
 
           {/* Category */}
           <div><label className="block text-sm font-medium text-gray-700 mb-2">Category *</label>
-            <select value={formData.category} onChange={e => setFormData(prev => ({ ...prev, category: e.target.value }))} required disabled={isSubmitting || catLoading}
+            <select value={formData.category} onChange={e => setFormData(prev => ({ ...prev, category: e.target.value }))} disabled={isSubmitting || catLoading}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900">
               <option value="">Select a category</option>
               {categories.map(cat => (
@@ -571,21 +587,23 @@ const handleSubmit = async (e) => {
               disabled={isSubmitting}
             />
           </div>
-          <div>
-          <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="hasVideo"
-                checked={formData.magazine}
-                onChange={(e) => setFormData(prev => ({ ...prev, magazine: e.target.checked }))}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                disabled={isSubmitting}
-              />
-              <label htmlFor="hasVideo" className="ml-2 block text-sm font-medium text-gray-700">
-                Is Magazine
-              </label>
+          {entityName !== "Blog" && (
+            <div>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="isMagazine"
+                  checked={formData.magazine}
+                  onChange={(e) => setFormData(prev => ({ ...prev, magazine: e.target.checked }))}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  disabled={isSubmitting}
+                />
+                <label htmlFor="isMagazine" className="ml-2 block text-sm font-medium text-gray-700">
+                  Is Magazine
+                </label>
+              </div>
             </div>
-          </div>
+          )}
           {/* PDF File */}
           <div>
             <label className={formData.magazine ? "block text-sm font-medium text-gray-700 mb-2":"hidden"}>
@@ -638,7 +656,12 @@ const handleSubmit = async (e) => {
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end space-x-4 pt-6 border-t">
+          {error && (
+            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm font-medium text-red-700">{error}</p>
+            </div>
+          )}
+          <div className="flex justify-end space-x-4 pt-4 border-t">
             <button
               type="button"
               onClick={onClose}
@@ -657,10 +680,10 @@ const handleSubmit = async (e) => {
                 {isSubmitting 
                   ? 'Saving...' 
                   : article 
-                    ? 'Update Article' 
+                    ? `Update ${entityName}` 
                     : formData.status === "draft" 
                       ? "Save as Draft" 
-                      : "Publish Article"
+                      : `Publish ${entityName}`
                 }
               </span>
             </button>

@@ -18,6 +18,7 @@ import {
   ChevronRight,
   BookOpen,
   BrainCircuit,
+  FileText,
 } from "lucide-react"
 import { useAuth } from "../context/AuthContext" // adjust path
 
@@ -28,6 +29,7 @@ const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard" },
   ...(user.is_admin ? [{ icon: Users, label: "Users" }] : []),
   { icon: Newspaper, label: "News" },
+  { icon: FileText, label: "Blogs" },
   { icon: Calendar, label: "Events" },
   { icon: BookOpen, label: "Resources" },
   { icon: BrainCircuit, label: "R&D" },

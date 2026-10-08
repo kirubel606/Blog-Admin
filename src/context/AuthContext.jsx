@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react"
 import { jwtDecode } from "jwt-decode"
 
-const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL
+const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api"
 const AuthContext = createContext()
 
 export function AuthProvider({ children }) {
@@ -37,7 +37,7 @@ export function AuthProvider({ children }) {
   const refreshAccessToken = async (refreshOverride) => {
     const refresh = refreshOverride || refreshToken
     try {
-      const res = await fetch(`${BACKEND_BASE_URL}/users/user/token/refresh/`, {
+      const res = await fetch(`${BACKEND_BASE_URL}/users/user/login/token/refresh/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ refresh }),
