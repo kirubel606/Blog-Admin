@@ -19,6 +19,7 @@ import {
   BookOpen,
   BrainCircuit,
   FileText,
+  MailCheck,
 } from "lucide-react"
 import { useAuth } from "../context/AuthContext" // adjust path
 
@@ -38,6 +39,7 @@ const menuItems = [
   {icon: ChartBarBig, label: "Categories"},
   {icon: MessageCircleCode, label: "Collaborations"},
   {icon: MessageCircleCode, label: "Contacts"},
+  {icon: MailCheck, label: "Subscriptions"},
   {icon: MessageCircleQuestion, label: "FAQ"},
   {icon: MessageSquareQuote, label: "Quotes"},
   { icon: Settings, label: "Settings" },

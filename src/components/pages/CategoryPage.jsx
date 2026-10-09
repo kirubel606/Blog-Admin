@@ -128,7 +128,6 @@ function CategoryPage() {
             <div className="absolute top-3 left-3">
               {isCore ? (
                 <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-500 text-white shadow-sm">
-                  <Sparkles className="w-3.5 h-3.5" />
                   Core Category
                 </span>
               ) : (
@@ -245,7 +244,6 @@ function CategoryPage() {
                 : "bg-amber-50 text-amber-800 hover:bg-amber-100"
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5 mr-1.5" />
             Core Categories
             <span
               className={`ml-2 text-xs px-2 py-0.5 rounded-full font-bold ${
@@ -302,7 +300,6 @@ function CategoryPage() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-gray-200 gap-2">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center shadow-2xs">
-                    <Sparkles className="w-4 h-4" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
@@ -324,7 +321,6 @@ function CategoryPage() {
                 </div>
               ) : (
                 <div className="bg-amber-50/50 border border-dashed border-amber-200 rounded-xl p-8 text-center">
-                  <Sparkles className="w-8 h-8 text-amber-400 mx-auto mb-2" />
                   <p className="text-sm font-semibold text-gray-700">No core categories found</p>
                   <p className="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
                     {searchTerm
