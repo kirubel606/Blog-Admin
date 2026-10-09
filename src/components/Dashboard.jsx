@@ -56,7 +56,9 @@ function Dashboard({ user, onLogout }) {
       case "Collaborations":
         return <CollaborationsPage />
       case "Contacts":
-        return <ContactsPage />
+        return <ContactsPage initialTab="contacts" />
+      case "Subscriptions":
+        return <ContactsPage initialTab="subscriptions" />
       case "Quotes":
         return <QuotesPage />
       case "FAQ":
