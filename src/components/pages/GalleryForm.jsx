@@ -176,6 +176,7 @@ function GalleryForm({ onClose, onSubmit, initialData = null }) {
               <option value="DATA_CENTER">Data Center</option>
               <option value="SHOWROOM">Showroom</option>
               <option value="SUMMER_CAMP">Summer Camp</option>
+              <option value="STARTUP">Startup</option>
               <option value="MOU">MOU</option>
             </select>
           </div>
