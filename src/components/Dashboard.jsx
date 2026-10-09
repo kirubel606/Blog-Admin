@@ -5,6 +5,7 @@ import Sidebar from "./Sidebar.jsx"
 import Navbar from "./Navbar.jsx"
 import DashboardContent from "./DashboardContent.jsx"
 import NewsPage from "./pages/NewsPage.jsx"
+import BlogsPage from "./pages/BlogsPage.jsx"
 import EventsPage from "./pages/EventsPage.jsx"
 import WebsiteEssentialsPage from "./pages/WebsiteEssentialsPage.jsx"
 import GalleryPage from "./pages/GalleryPage.jsx"
@@ -30,6 +31,8 @@ function Dashboard({ user, onLogout }) {
         return <DashboardContent />
       case "News":
         return <NewsPage />
+      case "Blogs":
+        return <BlogsPage />
       case "Events":
         return <EventsPage />
       case "Resources":
@@ -53,7 +56,9 @@ function Dashboard({ user, onLogout }) {
       case "Collaborations":
         return <CollaborationsPage />
       case "Contacts":
-        return <ContactsPage />
+        return <ContactsPage initialTab="contacts" />
+      case "Subscriptions":
+        return <ContactsPage initialTab="subscriptions" />
       case "Quotes":
         return <QuotesPage />
       case "FAQ":
