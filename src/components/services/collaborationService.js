@@ -11,6 +11,7 @@ export const collaborationService = {
     payload.append("logo", formData.logoFile)
     if (formData.link) payload.append("link", formData.link)
     if (formData.category) payload.append("category", formData.category)
+    payload.append("is_local", String(Boolean(formData.is_local)))
     const { data } = await axiosInstance.post("/collaborations/", payload)
     return data
   },
@@ -19,6 +20,7 @@ export const collaborationService = {
     if (formData.logoFile) payload.append("logo", formData.logoFile)
     if (formData.link) payload.append("link", formData.link)
     if (formData.category) payload.append("category", formData.category)
+    payload.append("is_local", String(Boolean(formData.is_local)))
     const { data } = await axiosInstance.put(`/collaborations/${id}/`, payload)
     return data
   },

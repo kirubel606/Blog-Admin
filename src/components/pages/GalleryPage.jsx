@@ -9,6 +9,7 @@ import {formatDate,formatTime} from "../services/formatdate"
 
 function GalleryPage() {
   const [galleries, setGalleries] = useState([])
+  const [categoryFilter, setCategoryFilter] = useState("ALL")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [showGalleryForm, setShowGalleryForm] = useState(false)
@@ -85,6 +86,10 @@ function GalleryPage() {
       }
     }
     
+  const filteredGalleries = galleries.filter((gallery) => {
+    if (categoryFilter === "ALL") return true
+    return gallery.category === categoryFilter
+  })
 
   return (
     <div className="p-6">
@@ -94,21 +99,34 @@ function GalleryPage() {
           <h1 className="text-2xl font-bold text-gray-900">Gallery</h1>
           <p className="text-gray-600 mt-1">Manage your image galleries</p>
         </div>
-        <button
-          onClick={() => {
-            setEditingGallery(null)
-            setShowGalleryForm(true)
-          }}
-          className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary/90 transition-colors"
-        >
-          <Plus className="w-5 h-5 mr-2" />
-          Create Gallery
-        </button>
+        <div className="flex items-center gap-3">
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 bg-white"
+          >
+            <option value="ALL">All Categories</option>
+            <option value="DATA_CENTER">Data Center</option>
+            <option value="SHOWROOM">Showroom</option>
+            <option value="SUMMER_CAMP">Summer Camp</option>
+            <option value="MOU">MOU</option>
+          </select>
+          <button
+            onClick={() => {
+              setEditingGallery(null)
+              setShowGalleryForm(true)
+            }}
+            className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary/90 transition-colors"
+          >
+            <Plus className="w-5 h-5 mr-2" />
+            Create Gallery
+          </button>
+        </div>
       </div>
 
       {/* Galleries Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {galleries.map((gallery) => (
+        {filteredGalleries.map((gallery) => (
           <div
             key={gallery.id}
             className="bg-white rounded-lg shadow overflow-hidden"
@@ -118,6 +136,9 @@ function GalleryPage() {
               <p className="text-sm text-gray-500 mt-1">
                 Created on {formatDate(gallery.created_at)}
               </p>
+              {gallery.category && (
+                <p className="text-xs text-gray-500 mt-1">Category: {gallery.category}</p>
+              )}
             </div>
             <div className="p-4">
               <div className="grid grid-cols-2 gap-2">
@@ -160,6 +181,9 @@ function GalleryPage() {
           </div>
         ))}
       </div>
+      {filteredGalleries.length === 0 && (
+        <p className="text-sm text-gray-500 mt-4">No galleries found for this category.</p>
+      )}
 
       {/* Gallery Form Modal */}
       {showGalleryForm && (

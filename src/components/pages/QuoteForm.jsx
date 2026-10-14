@@ -2,14 +2,15 @@
 import { useState } from "react"
 import { X } from "lucide-react"
 
-const QuoteForm = ({ initialData, onClose, onSubmit }) => {
+const QuoteForm = ({ initialData, defaultIsTestimony = false, onClose, onSubmit }) => {
+  const effectiveIsTestimony = initialData?.is_testimony ?? defaultIsTestimony
   const [formData, setFormData] = useState({
     image: null,
     quote: initialData?.quote || "",
     name: initialData?.name || "",
     position: initialData?.position || "",
     link: initialData?.link || "",
-    is_testimony: initialData?.is_testimony || false,
+    is_testimony: effectiveIsTestimony,
   })
 
   const handleChange = (e) => {
@@ -42,7 +43,9 @@ const QuoteForm = ({ initialData, onClose, onSubmit }) => {
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b">
           <h2 className="text-lg font-semibold text-gray-800">
-            {initialData ? "Edit Quote" : "Add Quote"}
+            {initialData
+              ? `Edit ${effectiveIsTestimony ? "Testimony" : "Quote"}`
+              : `Add ${effectiveIsTestimony ? "Testimony" : "Quote"}`}
           </h2>
           <button
             onClick={onClose}

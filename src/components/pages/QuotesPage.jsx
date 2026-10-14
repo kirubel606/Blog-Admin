@@ -7,8 +7,10 @@ import QuoteForm from "./QuoteForm" // You need to implement this
 
 function QuotesPage() {
   const [quotes, setQuotes] = useState([])
+  const [testimonies, setTestimonies] = useState([])
   const [showForm, setShowForm] = useState(false)
   const [selectedQuote, setSelectedQuote] = useState(null)
+  const [formMode, setFormMode] = useState("quote")
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [quoteToDelete, setQuoteToDelete] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -22,12 +24,19 @@ function QuotesPage() {
     try {
       setLoading(true)
       setError(null)
-      const data = await quoteService.getAll()
-      setQuotes(Array.isArray(data) ? data : [])
+      const [quotesData, testimoniesData] = await Promise.all([
+        quoteService.getAll(),
+        quoteService.getTestimonies(),
+      ])
+      const safeQuotes = Array.isArray(quotesData) ? quotesData.filter((item) => !item.is_testimony) : []
+      const safeTestimonies = Array.isArray(testimoniesData) ? testimoniesData : []
+      setQuotes(safeQuotes)
+      setTestimonies(safeTestimonies)
     } catch (err) {
       console.error("Failed to load quotes:", err)
-      setError(err?.response?.data?.detail || "Failed to load quotes.")
+      setError(err?.response?.data?.detail || "Failed to load quotes and testimonies.")
       setQuotes([])
+      setTestimonies([])
     } finally {
       setLoading(false)
     }
@@ -63,11 +72,73 @@ function QuotesPage() {
       setShowDeleteModal(false)
       await quoteService.delete(quoteToDelete.id)
       setQuotes(prev => prev.filter(q => q.id !== quoteToDelete.id))
+      setTestimonies(prev => prev.filter(t => t.id !== quoteToDelete.id))
       alert("Successfully deleted!")
     } catch (err) {
       console.error("Failed to delete quote:", err)
       setError(err?.response?.data?.detail || "Failed to delete quote.")
     }
+  }
+
+  const openCreateForm = (mode) => {
+    setSelectedQuote(null)
+    setFormMode(mode)
+    setShowForm(true)
+  }
+
+  const renderCard = (item) => (
+    <div
+      key={item.id}
+      className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition"
+    >
+      <img src={item.image} alt={item.name} className="w-full h-40 object-cover bg-gray-100" />
+
+      <div className="p-4 space-y-2">
+        <blockquote className="text-gray-700 text-sm italic line-clamp-4">“{item.quote}”</blockquote>
+        <div>
+          <p className="font-semibold text-gray-800">{item.name}</p>
+          <p className="text-sm text-gray-600">{item.position}</p>
+        </div>
+        {item.link && (
+          <a
+            href={item.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-blue-600 text-sm hover:underline"
+          >
+            Profile <ExternalLink className="w-4 h-4" />
+          </a>
+        )}
+        <div className="text-xs text-gray-500">
+          {item.is_testimony ? "Testimony" : "Quote"}
+        </div>
+      </div>
+
+      <div className="px-4 py-3 bg-gray-50 border-t flex justify-end gap-3">
+        <button
+          onClick={() => {
+            setSelectedQuote(item)
+            setFormMode(item.is_testimony ? "testimony" : "quote")
+            setShowForm(true)
+          }}
+          className="text-sm text-primary hover:text-[#FF8533] font-medium flex items-center"
+        >
+          <Pencil className="w-4 h-4 mr-1" />
+          Edit
+        </button>
+        <button
+          onClick={() => handleDelete(item)}
+          className="text-sm text-red-600 hover:text-red-800 flex items-center"
+        >
+          <Trash2 className="w-4 h-4 mr-1" />
+          Delete
+        </button>
+      </div>
+    </div>
+  )
+
+  if (loading) {
+    return <div className="p-6 text-gray-600">Loading quotes and testimonies...</div>
   }
 
   return (
@@ -78,75 +149,59 @@ function QuotesPage() {
           <h1 className="text-2xl font-bold text-gray-900">Quotes</h1>
           <p className="text-gray-600 mt-1">Manage quotes and testimonies for your platform</p>
         </div>
-        <button
-          onClick={() => {
-            setSelectedQuote(null)
-            setShowForm(true)
-          }}
-          className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
-        >
-          <Plus className="w-5 h-5 mr-2" />
-          Add Quote
-        </button>
       </div>
 
-      {/* Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {quotes.map((item) => (
-          <div
-            key={item.id}
-            className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition"
+      {error && (
+        <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
+
+      {/* Quotes Section */}
+      <div className="mb-10">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold text-gray-900">Quotes</h2>
+          <button
+            onClick={() => openCreateForm("quote")}
+            className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
           >
-            <img src={item.image} alt={item.name} className="w-full h-40 object-cover bg-gray-100" />
+            <Plus className="w-5 h-5 mr-2" />
+            Add Quote
+          </button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {quotes.map(renderCard)}
+        </div>
+        {quotes.length === 0 && (
+          <p className="text-sm text-gray-500 mt-2">No quotes found.</p>
+        )}
+      </div>
 
-            <div className="p-4 space-y-2">
-              <blockquote className="text-gray-700 text-sm italic line-clamp-4">“{item.quote}”</blockquote>
-              <div>
-                <p className="font-semibold text-gray-800">{item.name}</p>
-                <p className="text-sm text-gray-600">{item.position}</p>
-              </div>
-              {item.link && (
-                <a
-                  href={item.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-blue-600 text-sm hover:underline"
-                >
-                  Profile <ExternalLink className="w-4 h-4" />
-                </a>
-              )}
-              <div className="text-xs text-gray-500">
-                {item.is_testimony ? "Testimony" : "Quote"}
-              </div>
-            </div>
-
-            <div className="px-4 py-3 bg-gray-50 border-t flex justify-end gap-3">
-              <button
-                onClick={() => {
-                  setSelectedQuote(item)
-                  setShowForm(true)
-                }}
-                className="text-sm text-primary hover:text-[#FF8533] font-medium flex items-center"
-              >
-                <Pencil className="w-4 h-4 mr-1" />
-                Edit
-              </button>
-              <button
-                onClick={() => handleDelete(item)}
-                className="text-sm text-red-600 hover:text-red-800 flex items-center"
-              >
-                <Trash2 className="w-4 h-4 mr-1" />
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
+      {/* Testimonies Section */}
+      <div>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold text-gray-900">Testimonies</h2>
+          <button
+            onClick={() => openCreateForm("testimony")}
+            className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
+          >
+            <Plus className="w-5 h-5 mr-2" />
+            Add Testimony
+          </button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {testimonies.map(renderCard)}
+        </div>
+        {testimonies.length === 0 && (
+          <p className="text-sm text-gray-500 mt-2">No testimonies found.</p>
+        )}
       </div>
 
       {/* Form Modal */}
       {showForm && (
         <QuoteForm
           initialData={selectedQuote}
+          defaultIsTestimony={formMode === "testimony"}
           onClose={() => {
             setShowForm(false)
             setSelectedQuote(null)
@@ -171,7 +226,7 @@ function QuotesPage() {
                 <p className="font-medium">Warning</p>
               </div>
               <p className="text-gray-600 mb-6">
-                Are you sure you want to delete this quote? This action cannot be undone.
+                Are you sure you want to delete this {quoteToDelete?.is_testimony ? "testimony" : "quote"}? This action cannot be undone.
               </p>
               <div className="flex justify-end space-x-4">
                 <button onClick={() => setShowDeleteModal(false)} className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">

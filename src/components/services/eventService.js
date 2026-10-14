@@ -34,6 +34,8 @@ async createEvent(formData) {
     payload.append("venue", formData.venue);
     payload.append("venue_am", formData.venue_am);
     payload.append("video_link", formData.video_link);
+    payload.append("start_date", formData.start_date);
+    payload.append("end_date", formData.end_date);
     payload.append("category", formData.category);
     payload.append("is_live", formData.is_live); // boolean
     payload.append("type", formData.type);       // 'conference' | 'webinar' | 'workshop'

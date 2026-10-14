@@ -5,6 +5,11 @@ export const quoteService = {
     return res.data
   },
 
+  getTestimonies: async () => {
+    const res = await axiosInstance.get("/testimony/")
+    return res.data
+  },
+
   create: async (data) => {
     const res = await axiosInstance.post("/quotes/", data, {
       headers: { "Content-Type": "multipart/form-data" },

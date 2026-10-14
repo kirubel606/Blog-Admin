@@ -1,6 +1,38 @@
 // src/services/galleryService.js
 import axiosInstance from "../../api"
 
+const buildGalleryPayload = (formData) => {
+  const payload = new FormData()
+
+  payload.append("title", formData.title || "")
+  payload.append("title_am", formData.title_am || "")
+  payload.append("caption", formData.caption || "")
+  payload.append("caption_am", formData.caption_am || "")
+  payload.append("discription", formData.discription || "")
+  payload.append("discription_am", formData.discription_am || "")
+  payload.append("classification", "gallery")
+  payload.append("category", String(formData.category || ""))
+
+  if (formData.published_at) {
+    payload.append("published_at", formData.published_at)
+  }
+
+  if (formData.tags) {
+    payload.append("tags", Array.isArray(formData.tags) ? formData.tags.join(",") : formData.tags)
+  }
+
+  return payload
+}
+
+const debugPayload = (label, payload) => {
+  if (!import.meta.env.DEV) return
+  const entries = Array.from(payload.entries()).map(([key, value]) => [
+    key,
+    value instanceof File ? value.name : value,
+  ])
+  console.debug(label, entries)
+}
+
 export const galleryService = {
     // Get all gallery articles
     async getAllgallery() {
@@ -16,59 +48,26 @@ export const galleryService = {
   
   // ✅ Create new gallery with images
   async createGallery(formData) {
-    const payload = new FormData()
-
-    payload.append("title", formData.title)
-    payload.append("title_am", formData.title_am)
-    payload.append("caption", formData.caption || "")
-    payload.append("caption_am", formData.caption_am || "")
-    payload.append("discription", formData.discription || "")
-    payload.append("discription_am", formData.discription_am || "")
-    payload.append("classification", "gallery")
-
-    if (formData.category)
-      payload.append("category", formData.category.toString())
-
-    if (formData.published_at)
-      payload.append("published_at", formData.published_at)
-
-    if (formData.tags)
-      payload.append("tags", Array.isArray(formData.tags) ? formData.tags.join(",") : formData.tags)
+    const payload = buildGalleryPayload(formData)
 
     // Append images (if any)
     if (formData.images && formData.images.length > 0) {
-      formData.images.forEach((img, i) => {
+      formData.images.forEach((img) => {
         payload.append(`images`, img)
       })
     }
 
-    const { data } = await axiosInstance.post("/gallery/", payload)
+    debugPayload("createGallery payload", payload)
+
+    const { data } = await axiosInstance.post("/gallery/", payload, {
+      headers: { "Content-Type": "multipart/form-data" },
+    })
     return data
   },
 
 // ✅ Update existing gallery
 async updateGallery(galleryId, formData) {
-    const payload = new FormData()
-  
-    payload.append("title", formData.title)
-    payload.append("title_am", formData.title_am)
-    payload.append("caption", formData.caption || "")
-    payload.append("caption_am", formData.caption_am || "")
-    payload.append("discription", formData.discription || "")
-    payload.append("discription_am", formData.discription_am || "")
-    payload.append("classification", "gallery")
-  
-    if (formData.category)
-      payload.append("category", formData.category.toString())
-  
-    if (formData.published_at)
-      payload.append("published_at", formData.published_at)
-  
-    if (formData.tags)
-      payload.append(
-        "tags",
-        Array.isArray(formData.tags) ? formData.tags.join(",") : formData.tags
-      )
+    const payload = buildGalleryPayload(formData)
   
     // ✅ Add new image files only
     if (formData.images && formData.images.length > 0) {
@@ -85,8 +84,12 @@ async updateGallery(galleryId, formData) {
         payload.append("removed_images", imgUrlOrId)
       })
     }
+
+    debugPayload("updateGallery payload", payload)
   
-    const { data } = await axiosInstance.put(`/gallery/${galleryId}/`, payload)
+    const { data } = await axiosInstance.put(`/gallery/${galleryId}/`, payload, {
+      headers: { "Content-Type": "multipart/form-data" },
+    })
     return data
   },
 

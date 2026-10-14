@@ -1,12 +1,14 @@
 "use client"
 
-import { useState,useEffect } from "react"
-import { Plus, Calendar, MapPin, Users, Clock, Filter,AlertCircle ,Search,Edit,Trash2,Eye,Loader2,User} from "lucide-react"
+import { useState, useEffect } from "react"
+import {
+  Plus, Calendar, MapPin, Users, Clock, Filter, AlertCircle
+} from "lucide-react"
 import EventForm from "./EventForm"
 import { eventService } from "../services/eventService"
-import {formatDate,formatTime} from "../services/formatdate"
-const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL
+import { formatDate, formatTime } from "../services/formatdate"
 
+const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
 function EventsPage() {
   const [events, setEvents] = useState([])
@@ -22,107 +24,106 @@ function EventsPage() {
     const matchesStatus = selectedStatus === "All" || event.status === selectedStatus
     return matchesType && matchesStatus
   })
-  // Load articles on component mount
+
   useEffect(() => {
     loadEvents()
   }, [])
-  
-  
-    const loadEvents = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-        const data = await eventService.getAllevent()
-        // Ensure we always have an array
-        setEvents(Array.isArray(data) ? data : [])
-      } catch (error) {
-        console.error('Failed to load events:', error)
-        setError(error?.response?.data?.detail || 'Failed to load events. Please try again.');
-        setEvents([]) // Set empty array on error
-      } finally {
-        setLoading(false)
-      }
+
+  const loadEvents = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const data = await eventService.getAllevent()
+      setEvents(Array.isArray(data) ? data : [])
+    } catch (error) {
+      console.error("Failed to load events:", error)
+      setError(error?.response?.data?.detail || "Failed to load events. Please try again.")
+      setEvents([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+const handleEventSubmit = async (formDataToSend) => {
+  try {
+    setError(null);
+
+    if (editingEvent) {
+      await eventService.updateEvent(editingEvent.id, formDataToSend);
+    } else {
+      await eventService.createEvent(formDataToSend);
     }
 
+    await loadEvents();
+    setShowEventForm(false);
+    setEditingEvent(null);
+  } catch (error) {
+    console.error("Failed to save event:", error);
+    setError(
+      error?.response?.data?.detail ||
+        "Failed to save event. Please try again."
+    );
+  }
+};
 
-    const handleEventSubmit = async (formData) => {
-      try {
-        setError(null)
-        
-        if (editingEvent) {
-          // Update existing article
-          await eventService.updateEvent(editingEvent.id, formData)
-        } else {
-          // Create new article
-          await eventService.createEvent(formData)
-        }
-        
-        // Reload articles and close form
-        await loadEvents()
-        setShowEventForm(false)
-        setEditingEvent(null)
-      } catch (error) {
-        console.error('Failed to save event:', error)
-        setError(error?.response?.data?.detail || 'Failed to save event. Please try again.');
+
+  const handleEditEvent = async (event) => {
+    try {
+      setError(null)
+      const fullEvent = await eventService.geteventDetail(event.id)
+      const formattedEvent = {
+        ...fullEvent,
+        start_date: fullEvent.start_date
+          ? new Date(fullEvent.start_date).toISOString().slice(0, 16)
+          : "",
+        end_date: fullEvent.end_date
+          ? new Date(fullEvent.end_date).toISOString().slice(0, 16)
+          : "",
       }
+
+      setEditingEvent(formattedEvent)
+      setShowEventForm(true)
+    } catch (error) {
+      console.error("Failed to load event details:", error)
+      setError(error?.response?.data?.detail || "Failed to load event details. Please try again.")
     }
-  
-    const handleEditEvent = async (event) => {
-      try {
-        setError(null)
-        // Get full article details
-        const fullEvent = await eventService.geteventDetail(event.id)
-        setEditingEvent(fullEvent)
-        setShowEventForm(true)
-      } catch (error) {
-        console.error('Failed to load article details:', error)
-        setError(error?.response?.data?.detail || 'Failed to load article details. Please try again.');
-      }
+  }
+
+  const handleDeleteEvent = async (eventId) => {
+    if (!window.confirm("Are you sure you want to delete this event?")) return
+
+    try {
+      setError(null)
+      await eventService.deleteEvent(eventId)
+      setEvents((prev) => prev.filter((event) => event.id !== eventId))
+    } catch (error) {
+      console.error("Failed to delete event:", error)
+      setError(error?.response?.data?.detail || "Failed to delete event. Please try again.")
     }
-  
-    const handleDeleteEvent = async (eventId) => {
-      if (!window.confirm('Are you sure you want to delete this event?')) {
-        return
-      }
-  
-      try {
-        setError(null)
-        await eventService.deleteEvent(eventId)
-        // Remove article from state
-        setEvents(prev => prev.filter(event => event.id !== eventId))
-      } catch (error) {
-        console.error('Failed to delete article:', error)
-        setError(error?.response?.data?.detail || 'Failed to delete article. Please try again.');
-      }
+  }
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(null), 3000)
+      return () => clearTimeout(timer)
     }
-    useEffect(() => {
-      if (error) {
-        const timer = setTimeout(() => {
-          setError(null);
-        }, 3000); // show for 3 seconds
-    
-        return () => clearTimeout(timer); // cleanup if component unmounts or error changes
-      }
-    }, [error]);
+  }, [error])
 
   return (
     <div className="space-y-6">
-      {/* Error Message */}
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start space-x-3">
           <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
           <div>
             <h3 className="text-sm font-medium text-red-800">Error</h3>
             <p className="text-sm text-red-700 mt-1">{error}</p>
-            <button
-              onClick={loadEvents}
-              className="text-sm text-red-800 underline hover:text-red-900 mt-2"
-            >
+            <button onClick={loadEvents} className="text-sm text-red-800 underline hover:text-red-900 mt-2">
               Try again
             </button>
           </div>
         </div>
       )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -152,15 +153,16 @@ function EventsPage() {
             <option value="webinar">Webinar</option>
             <option value="workshop">Workshop</option>
           </select>
+
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
             className="px-4 py-2 border text-gray-900 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
           >
             <option value="All">All Status</option>
-            <option value="upcoming">Upcoming</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
+            <option value="Upcoming">Upcoming</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
           </select>
         </div>
       </div>
@@ -179,8 +181,8 @@ function EventsPage() {
                     event.status === "Upcoming"
                       ? "bg-blue-100 text-blue-800"
                       : event.status === "Completed"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-red-100 text-red-800"
                   }`}
                 >
                   {event.status}
@@ -191,16 +193,20 @@ function EventsPage() {
               </div>
 
               <h3 className="text-xl font-semibold text-gray-900 mb-3">{event.title}</h3>
-              <p className="text-gray-600 text-sm mb-4">{event.description.length > 90? `${event.description.slice(0, 90)}...`: event.description}</p>
+              <p className="text-gray-600 text-sm mb-4">
+                {event.description.length > 90
+                  ? `${event.description.slice(0, 90)}...`
+                  : event.description}
+              </p>
 
               <div className="space-y-2">
                 <div className="flex items-center space-x-2 text-sm text-gray-600">
                   <Calendar className="w-4 h-4" />
-                  <span>{formatDate(event.timestamp)}</span>
+                  <span>{formatDate(event.start_date)}</span>
                 </div>
                 <div className="flex items-center space-x-2 text-sm text-gray-600">
                   <Clock className="w-4 h-4" />
-                  <span>{formatTime(event.timestamp)}</span>
+                  <span>{formatTime(event.start_date)}</span>
                 </div>
                 <div className="flex items-center space-x-2 text-sm text-gray-600">
                   <MapPin className="w-4 h-4" />
@@ -213,10 +219,16 @@ function EventsPage() {
               </div>
 
               <div className="mt-6 flex space-x-2">
-                <button onClick={() => handleEditEvent(event)} className="flex-1 bg-primary text-white py-2 px-4 rounded-lg font-medium hover:bg-orange-600 transition-colors">
+                <button
+                  onClick={() => handleEditEvent(event)}
+                  className="flex-1 bg-primary text-white py-2 px-4 rounded-lg font-medium hover:bg-orange-600 transition-colors"
+                >
                   Edit Event
                 </button>
-                <button onClick={() => handleDeleteEvent(event.id)} className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                <button
+                  onClick={() => handleDeleteEvent(event.id)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                >
                   Delete
                 </button>
               </div>
@@ -237,11 +249,12 @@ function EventsPage() {
         />
       )}
 
-{error && (
-      <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[9999] bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg animate-bounce">
-        {error}
-      </div>
-    )}
+      {/* Floating error popup */}
+      {error && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[9999] bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg animate-bounce">
+          {error}
+        </div>
+      )}
     </div>
   )
 }

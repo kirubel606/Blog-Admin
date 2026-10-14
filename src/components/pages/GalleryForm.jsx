@@ -169,12 +169,14 @@ function GalleryForm({ onClose, onSubmit, initialData = null }) {
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, category: e.target.value }))
               }
+              required
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
             >
-              <option value="">Select Category</option>
+              <option value="" disabled>Select Category</option>
               <option value="DATA_CENTER">Data Center</option>
               <option value="SHOWROOM">Showroom</option>
               <option value="SUMMER_CAMP">Summer Camp</option>
+              <option value="STARTUP">Startup</option>
               <option value="MOU">MOU</option>
             </select>
           </div>
