@@ -9,6 +9,9 @@ const CLASSIFICATION_OPTIONS = [
   { value: "resource", label: "Resource" },
   { value: "case_study", label: "Case Study" },
   { value: "development", label: "Development" },
+  { value: "patents", label:"Patents"},
+  { value: "dataset", label: "Dataset"},
+  { value: "tool", label: "Tool"},
 ]
 const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
