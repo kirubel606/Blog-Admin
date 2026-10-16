@@ -15,41 +15,51 @@ export const categoryService = {
   },
 
 
-// Create new category
-async createCategory(formData) {
-  const payload = new FormData();
+  // Get all blog topics
+  async getBlogTopics() {
+    const { data } = await axiosInstance.get("/categories/blog-topics/")
+    if (data.results?.result) return data.results.result
+    if (Array.isArray(data)) return data
+    return data.results || []
+  },
 
-  payload.append("name", formData.name);
-  payload.append("name_am", formData.name_am);
-  payload.append("description", formData.description);
-  payload.append("description_am", formData.description_am);
-  payload.append("is_core", formData.is_core); // boolean
+  // Create new category
+  async createCategory(formData) {
+    const payload = new FormData();
 
-  if (formData.imageFile) {
-    payload.append("image", formData.imageFile);
-  }
+    payload.append("name", formData.name);
+    payload.append("name_am", formData.name_am);
+    payload.append("description", formData.description);
+    payload.append("description_am", formData.description_am);
+    payload.append("is_core", Boolean(formData.is_core)); // boolean
+    payload.append("is_blog_topic", Boolean(formData.is_blog_topic)); // boolean
 
-  const { data } = await axiosInstance.post("/categories/", payload);
-  return data;
-},
+    if (formData.imageFile) {
+      payload.append("image", formData.imageFile);
+    }
 
-// Update existing category
-async updateCategory(categoryId, formData) {
-  const payload = new FormData();
+    const { data } = await axiosInstance.post("/categories/", payload);
+    return data;
+  },
 
-  payload.append("name", formData.name);
-  payload.append("name_am", formData.name_am);
-  payload.append("description", formData.description);
-  payload.append("description_am", formData.description_am);
-  payload.append("is_core", formData.is_core); // boolean
+  // Update existing category
+  async updateCategory(categoryId, formData) {
+    const payload = new FormData();
 
-  if (formData.imageFile) {
-    payload.append("image", formData.imageFile);
-  }
+    payload.append("name", formData.name);
+    payload.append("name_am", formData.name_am);
+    payload.append("description", formData.description);
+    payload.append("description_am", formData.description_am);
+    payload.append("is_core", Boolean(formData.is_core)); // boolean
+    payload.append("is_blog_topic", Boolean(formData.is_blog_topic)); // boolean
 
-  const { data } = await axiosInstance.put(`/categories/${categoryId}/`, payload);
-  return data;
-},
+    if (formData.imageFile) {
+      payload.append("image", formData.imageFile);
+    }
+
+    const { data } = await axiosInstance.put(`/categories/${categoryId}/`, payload);
+    return data;
+  },
 
 
   // Delete a categories article

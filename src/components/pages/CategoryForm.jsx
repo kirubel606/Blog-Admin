@@ -11,6 +11,7 @@ function CategoryForm({ onClose, onSubmit, initialData = null }) {
     description_am: "",
     imageFile: null,
     is_core: false,
+    is_blog_topic: false,
   })
 
   useEffect(() => {
@@ -21,7 +22,8 @@ function CategoryForm({ onClose, onSubmit, initialData = null }) {
         description: initialData.description || "",
         description_am: initialData.description_am || "",
         imageFile: null,
-        is_core: initialData.is_core || false,
+        is_core: Boolean(initialData.is_core),
+        is_blog_topic: Boolean(initialData.is_blog_topic),
         image: initialData.image || "",
       })
     }
@@ -124,15 +126,33 @@ function CategoryForm({ onClose, onSubmit, initialData = null }) {
             )}
           </div>
 
-          {/* Is Core */}
-          <div className="flex items-center space-x-3">
-            <input
-              type="checkbox"
-              checked={formData.is_core}
-              onChange={(e) => setFormData((prev) => ({ ...prev, is_core: e.target.checked }))}
-              className="h-4 w-4 text-[#FF6B00] border-gray-300 rounded"
-            />
-            <label className="text-sm text-gray-700">Core Category</label>
+          {/* Category Type Checkboxes */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+            <div className="flex items-center space-x-3">
+              <input
+                id="is_core"
+                type="checkbox"
+                checked={formData.is_core}
+                onChange={(e) => setFormData((prev) => ({ ...prev, is_core: e.target.checked }))}
+                className="h-4 w-4 text-[#FF6B00] border-gray-300 rounded focus:ring-[#FF6B00] cursor-pointer"
+              />
+              <label htmlFor="is_core" className="text-sm font-medium text-gray-700 cursor-pointer">
+                Core Category
+              </label>
+            </div>
+
+            <div className="flex items-center space-x-3">
+              <input
+                id="is_blog_topic"
+                type="checkbox"
+                checked={formData.is_blog_topic}
+                onChange={(e) => setFormData((prev) => ({ ...prev, is_blog_topic: e.target.checked }))}
+                className="h-4 w-4 text-[#FF6B00] border-gray-300 rounded focus:ring-[#FF6B00] cursor-pointer"
+              />
+              <label htmlFor="is_blog_topic" className="text-sm font-medium text-gray-700 cursor-pointer">
+                Blog Topic
+              </label>
+            </div>
           </div>
 
           {/* Actions */}
