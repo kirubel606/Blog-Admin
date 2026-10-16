@@ -38,11 +38,11 @@ async createResource(formData) {
       payload.append("published_at", formData.published_at); // format: YYYY-MM-DD
     }
   
-    if (formData.plublisher) {
-      payload.append("plublisher", formData.plublisher);
+    if (formData.publisher) {
+      payload.append("publisher", formData.publisher);
     }
-    if (formData.plublisher) {
-      payload.append("plublisher_am", formData.plublisher_am);
+    if (formData.publisher_am) {
+      payload.append("publisher_am", formData.publisher_am);
     }
   
     const { data } = await axiosInstance.post("/resources/", payload);
@@ -66,11 +66,11 @@ async updateResource(resourceId, formData) {
       payload.append("published_at", formData.published_at); // YYYY-MM-DD
     }
   
-    if (formData.plublisher) {
-      payload.append("plublisher", formData.plublisher);
+    if (formData.publisher) {
+      payload.append("publisher", formData.publisher);
     }
-    if (formData.plublisher) {
-      payload.append("plublisher_am", formData.plublisher_am);
+    if (formData.publisher_am) {
+      payload.append("publisher_am", formData.publisher_am);
     }
   
     const { data } = await axiosInstance.put(
