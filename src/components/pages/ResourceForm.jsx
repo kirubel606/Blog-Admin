@@ -58,8 +58,8 @@ function ResourceForm({ Resource = null, onClose, onSubmit }) {
         author: Resource.author || "",
         author_am: Resource.author_am || "",
         published_at: Resource.published_at || "",
-        plublisher: Resource.plublisher || "",
-        plublisher_am: Resource.plublisher_am || "",
+        publisher: Resource.publisher || "",
+        publisher_am: Resource.publisher_am || "",
         link: Resource.link || "",
         category: Resource.category || "",
         tags: Resource.tags || "",
@@ -140,8 +140,8 @@ function ResourceForm({ Resource = null, onClose, onSubmit }) {
             <label className="block text-sm font-medium text-gray-700 mb-2">Publisher</label>
             <input
               type="text"
-              value={formData.plublisher}
-              onChange={(e) => setFormData(prev => ({ ...prev, plublisher: e.target.value }))}
+              value={formData.publisher}
+              onChange={(e) => setFormData(prev => ({ ...prev, publisher: e.target.value }))}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent text-gray-900"
               placeholder="Enter publisher name"
             />
@@ -150,8 +150,8 @@ function ResourceForm({ Resource = null, onClose, onSubmit }) {
             <label className="block text-sm font-medium text-gray-700 mb-2">Publisher in Amharic</label>
             <input
               type="text"
-              value={formData.plublisher_am}
-              onChange={(e) => setFormData(prev => ({ ...prev, plublisher_am: e.target.value }))}
+              value={formData.publisher_am}
+              onChange={(e) => setFormData(prev => ({ ...prev, publisher_am: e.target.value }))}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B00] focus:border-transparent text-gray-900"
               placeholder="Enter publisher name in Amharic"
             />
