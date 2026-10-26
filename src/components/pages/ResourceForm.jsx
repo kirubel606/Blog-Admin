@@ -11,7 +11,8 @@ const CLASSIFICATION_OPTIONS = [
   { value: "development", label: "Development" },
   { value: "patents", label:"Patents"},
   { value: "dataset", label: "Dataset"},
-  { value: "tool", label: "Tool"},
+  { value: "tool", label: "Tool" },
+  { value: "policy", label: "Policy" },
 ]
 const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
