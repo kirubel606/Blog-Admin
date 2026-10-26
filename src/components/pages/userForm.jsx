@@ -26,7 +26,7 @@ export default function UserFormModal({ isOpen, onClose, onSubmit, editingUser }
     if (isOpen) {
       setLoadingPermissions(true);
       axiosInstance
-        .get("api/users/permissions/") // your endpoint to get all permissions
+        .get("/users/permissions/") // your endpoint to get all permissions
         .then((res) => {
           setAllPermissions(res.data.permissions || []);
         })

@@ -134,7 +134,7 @@ export default function SettingsPage() {
         password: settings.password,
       };
       // send PUT request to update user (password only)
-      await axiosInstance.put("api/users/user/", updateData);
+      await axiosInstance.put("/users/user/", updateData);
   
       alert("Password updated successfully!");
       // Clear password fields after success

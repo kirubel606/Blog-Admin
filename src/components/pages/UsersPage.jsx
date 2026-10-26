@@ -44,11 +44,7 @@ function UsersPage() {
   
   const fetchUsers = async () => {
     try {
-      const res = await axiosInstance.get("api/users/all/", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      const res = await axiosInstance.get("/users/all/");
       setUsers(res.data.users);
       setError(null);
     } catch (err) {
@@ -68,8 +64,8 @@ function UsersPage() {
     values.permissions.forEach((permId) => data.append("permissions", permId));
   
     const url = editingUser
-      ? `api/users/user/update/${editingUser.id}/`
-      : `api/users/user/signup/`;
+      ? `/users/user/update/${editingUser.id}/`
+      : `/users/user/signup/`;
     const method = editingUser ? "put" : "post";
   
     try {
@@ -77,10 +73,7 @@ function UsersPage() {
         method,
         url,
         data,
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          // **no** Content-Type here—let the browser set it
-        },
+        
       });
       setIsModalOpen(false);
       setEditingUser(null);
@@ -95,11 +88,7 @@ function UsersPage() {
   
   const confirmDelete = async () => {
     try {
-      await axiosInstance.delete(`api/users/user/delete/${confirmDeleteUserId}/`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      await axiosInstance.delete(`/users/user/delete/${confirmDeleteUserId}/`);
       fetchUsers();
       setError(null);
     } catch (err) {
