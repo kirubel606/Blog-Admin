@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useAuth } from "../context/AuthContext" // adjust path
 import { Eye, EyeOff, Shield, Zap } from "lucide-react"
+import { toast } from "./ui/Toast"
 
 function LoginPage({ onLogin }) {
   const { login } = useAuth()
@@ -12,12 +13,21 @@ function LoginPage({ onLogin }) {
   const [isLoading, setIsLoading] = useState(false)
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (!username.trim()) {
+      toast.error("Please enter your username or email.", { title: "Validation Error" })
+      return
+    }
+    if (!password) {
+      toast.error("Please enter your password.", { title: "Validation Error" })
+      return
+    }
     setIsLoading(true)
     try {
       await login({ username, password })
+      toast.success("Welcome back! Signed in successfully.")
       // optionally redirect
-    } catch {
-      alert("Invalid credentials")
+    } catch (err) {
+      toast.error(err, { title: "Login Failed" })
     } finally {
       setIsLoading(false)
     }

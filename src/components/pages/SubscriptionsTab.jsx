@@ -18,6 +18,7 @@ import {
   RefreshCw,
 } from "lucide-react"
 import subscriptionService from "../services/subscriptionService"
+import { toast } from "../ui/Toast"
 
 const SubscriptionsTab = () => {
   const [subscribers, setSubscribers] = useState([])
@@ -131,8 +132,10 @@ const SubscriptionsTab = () => {
       setError(null)
       await subscriptionService.downloadSubscribersCSV()
       setSuccessMessage("Subscribers CSV downloaded successfully!")
+      toast.success("Subscribers CSV downloaded successfully!")
     } catch (err) {
       console.error("Error downloading CSV:", err)
+      toast.error(err, { title: "Failed to download CSV" })
       setError(err?.response?.data?.detail || "Failed to download subscribers CSV. Please try again.")
     } finally {
       setDownloading(false)
@@ -142,18 +145,24 @@ const SubscriptionsTab = () => {
   // Handle Add Subscriber
   const handleAddSubscriber = async (e) => {
     e.preventDefault()
-    if (!newEmail.trim()) return
+    if (!newEmail.trim()) {
+      toast.error("Please enter an email address", { title: "Validation Error" })
+      return
+    }
 
     try {
       setSubmitting(true)
       setError(null)
       await subscriptionService.subscribe(newEmail.trim())
-      setSuccessMessage(`Successfully subscribed ${newEmail.trim()}!`)
+      const successMsg = `Successfully subscribed ${newEmail.trim()}!`
+      setSuccessMessage(successMsg)
+      toast.success(successMsg)
       setNewEmail("")
       setShowAddModal(false)
       fetchSubscribers(debouncedSearch)
     } catch (err) {
       console.error("Error subscribing email:", err)
+      toast.error(err, { title: "Failed to add subscriber" })
       setError(
         err?.response?.data?.email?.[0] ||
         err?.response?.data?.message ||
@@ -173,11 +182,14 @@ const SubscriptionsTab = () => {
     try {
       setError(null)
       await subscriptionService.deleteSubscriber(subscriber.id)
-      setSuccessMessage(`Subscriber ${subscriber.email} removed successfully.`)
+      const successMsg = `Subscriber ${subscriber.email} removed successfully.`
+      setSuccessMessage(successMsg)
+      toast.success(successMsg)
       setConfirmModal({ isOpen: false, type: null, subscriber: null })
       fetchSubscribers(debouncedSearch)
     } catch (err) {
       console.error("Error deleting subscriber:", err)
+      toast.error(err, { title: "Failed to delete subscriber" })
       setError(err?.response?.data?.detail || "Failed to delete subscriber.")
     }
   }
@@ -190,12 +202,15 @@ const SubscriptionsTab = () => {
     try {
       setError(null)
       const res = await subscriptionService.unsubscribe(subscriber.email)
-      setSuccessMessage(res?.message || `${subscriber.email} unsubscribed successfully.`)
+      const successMsg = res?.message || `${subscriber.email} unsubscribed successfully.`
+      setSuccessMessage(successMsg)
+      toast.success(successMsg)
       setConfirmModal({ isOpen: false, type: null, subscriber: null })
       fetchSubscribers(debouncedSearch)
     } catch (err) {
-      console.error("Error unsubscribing email:", err)
-      setError(err?.response?.data?.detail || "Failed to unsubscribe email.")
+      console.error("Error unsubscribing subscriber:", err)
+      toast.error(err, { title: "Failed to unsubscribe" })
+      setError(err?.response?.data?.detail || "Failed to unsubscribe.")
     }
   }
 

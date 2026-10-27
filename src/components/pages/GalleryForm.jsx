@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { X } from "lucide-react"
+import { toast } from "../ui/Toast"
 
 function GalleryForm({ onClose, onSubmit, initialData = null }) {
   const [formData, setFormData] = useState({
@@ -36,15 +37,33 @@ function GalleryForm({ onClose, onSubmit, initialData = null }) {
   }, [initialData])
   const handleSubmit = (e) => {
     e.preventDefault()
+    if (!formData.title?.trim()) {
+      toast.error("Gallery title is required", { title: "Validation Error" })
+      return
+    }
     onSubmit(formData)
   }
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files)
-    setFormData(prev => ({
-      ...prev,
-      images: [...prev.images, ...files],
-    }))
+    const validFiles = files.filter(file => {
+      if (!file.type.startsWith("image/")) {
+        toast.error(`"${file.name}" is not a valid image`, { title: "Invalid File Type" })
+        return false
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error(`"${file.name}" exceeds 5MB size limit`, { title: "Invalid File Size" })
+        return false
+      }
+      return true
+    })
+
+    if (validFiles.length > 0) {
+      setFormData(prev => ({
+        ...prev,
+        images: [...prev.images, ...validFiles],
+      }))
+    }
   }
 
   const removeImage = (fileName) => {

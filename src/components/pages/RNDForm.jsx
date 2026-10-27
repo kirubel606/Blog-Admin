@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { X } from "lucide-react"
 import axios from "axios"
+import { toast } from "../ui/Toast"
 
 const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
@@ -64,9 +65,17 @@ function RNDForm({ rnd, onClose, onSubmit }) {
     e.preventDefault()
     setIsSubmitting(true)
     setError(null)
+    if (!formData.title?.trim()) {
+      const msg = "R&D title is required"
+      setError(msg)
+      toast.error(msg, { title: "Validation Error" })
+      setIsSubmitting(false)
+      return
+    }
     try {
       await onSubmit(formData)
     } catch (err) {
+      toast.error(err, { title: rnd ? "Failed to update R&D" : "Failed to create R&D" })
       setError("Something went wrong, please try again.")
     } finally {
       setIsSubmitting(false)

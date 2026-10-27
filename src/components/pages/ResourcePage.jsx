@@ -5,6 +5,7 @@ import { Plus, X, ExternalLink, Tag, MoreVertical, Pencil, Trash2 , Calendar, Ma
 import ResourceForm from "./ResourceForm"
 import { resourceService } from "../services/resourceService"
 import {formatDate,formatTime} from "../services/formatdate"
+import { toast } from "../ui/Toast"
 const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL
 import axios from "axios"
 // Mock data - replace with actual API calls
@@ -79,11 +80,11 @@ function ResourcePage() {
         if (selectedResource) {
           // Update existing article
           await resourceService.updateResource(selectedResource.id, formData)
-          alert("Resource updated successfully!") // 👈 success alert
+          toast.success("Resource updated successfully!")
         } else {
           // Create new article
           await resourceService.createResource(formData)
-          alert("Resource created successfully!") // 👈 success alert
+          toast.success("Resource created successfully!")
         }
     
         // Refresh list and close form
@@ -92,8 +93,9 @@ function ResourcePage() {
         setSelectedResource(null)
     
       } catch (error) {
-        console.error('Failed to save event:', error)
-        setError('Failed to save event. Please try again.')
+        console.error('Failed to save resource:', error)
+        toast.error(error, { title: selectedResource ? "Failed to update resource" : "Failed to create resource" })
+        setError('Failed to save resource. Please try again.')
       }
     }
     
@@ -108,6 +110,7 @@ function ResourcePage() {
         setShowMenu(null)
       } catch (error) {
         console.error('Failed to load resource details:', error)
+        toast.error(error, { title: "Failed to load resource details" })
         setError('Failed to load resource details. Please try again.')
       }
     }
@@ -117,13 +120,15 @@ function ResourcePage() {
       try {
         setError(null)
         setShowDeleteModal(false)
-        setResourceToDelete(null)
         await resourceService.deleteResource(resourceToDelete.id)
         // Remove article from state
         setResources(prev => prev.filter(resource => resource.id !== resourceToDelete.id))
+        setResourceToDelete(null)
+        toast.success("Resource deleted successfully!")
       } catch (error) {
-        console.error('Failed to delete article:', error)
-        setError('Failed to delete article. Please try again.')
+        console.error('Failed to delete resource:', error)
+        toast.error(error, { title: "Failed to delete resource" })
+        setError('Failed to delete resource. Please try again.')
       }
     }
 

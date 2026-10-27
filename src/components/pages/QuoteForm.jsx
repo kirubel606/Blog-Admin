@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react"
 import { X } from "lucide-react"
+import { toast } from "../ui/Toast"
 
 const QuoteForm = ({ initialData, defaultIsTestimony = false, onClose, onSubmit }) => {
   const effectiveIsTestimony = initialData?.is_testimony ?? defaultIsTestimony
@@ -23,11 +24,30 @@ const QuoteForm = ({ initialData, defaultIsTestimony = false, onClose, onSubmit 
   }
 
   const handleFileChange = (e) => {
-    setFormData((prev) => ({ ...prev, image: e.target.files[0] }))
+    const file = e.target.files[0]
+    if (file) {
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please upload an image file", { title: "Invalid File Type" })
+        return
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Image file must be less than 5MB", { title: "Invalid File Size" })
+        return
+      }
+      setFormData((prev) => ({ ...prev, image: file }))
+    }
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    if (!formData.quote?.trim()) {
+      toast.error("Quote / Testimony text is required", { title: "Validation Error" })
+      return
+    }
+    if (!formData.name?.trim()) {
+      toast.error("Author name is required", { title: "Validation Error" })
+      return
+    }
     const data = new FormData()
     for (let key in formData) {
       if (formData[key] !== null) {

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react"
 import { Plus, Trash2, X, Pencil, AlertTriangle, Sparkles, Layers, Search, FolderTree, Image as ImageIcon } from "lucide-react"
 import CategoryForm from "./CategoryForm"
 import { categoryService } from "@/components/services/categoryService"
+import { toast } from "../ui/Toast"
 
 function CategoryPage() {
   const [category, setCategory] = useState([])
@@ -40,10 +41,10 @@ function CategoryPage() {
 
       if (selectedCategory) {
         await categoryService.updateCategory(selectedCategory.id, formData)
-        alert("Successfully Updated!")
+        toast.success("Category updated successfully!")
       } else {
         await categoryService.createCategory(formData)
-        alert("Successfully Created!")
+        toast.success("Category created successfully!")
       }
 
       await loadCategory()
@@ -51,6 +52,7 @@ function CategoryPage() {
       setSelectedCategory(null)
     } catch (error) {
       console.error("Failed to save category:", error)
+      toast.error(error, { title: selectedCategory ? "Failed to update category" : "Failed to create category" })
       setError(error?.response?.data?.detail || "Failed to save category.")
     }
   }
@@ -64,12 +66,13 @@ function CategoryPage() {
     try {
       setError(null)
       setShowDeleteModal(false)
-      setCategoryToDelete(null)
       await categoryService.deleteCategory(categoryToDelete.id)
       setCategory((prev) => prev.filter((c) => c.id !== categoryToDelete.id))
-      alert("Successfully deleted!")
+      setCategoryToDelete(null)
+      toast.success("Category deleted successfully!")
     } catch (error) {
       console.error("Failed to delete category:", error)
+      toast.error(error, { title: "Failed to delete category" })
       setError(error?.response?.data?.detail || "Failed to delete category.")
     }
   }

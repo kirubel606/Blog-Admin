@@ -5,6 +5,7 @@ import { Plus, Calendar, MapPin, Users, Clock, Filter,AlertCircle ,Search,Edit,T
 import RNDForm from "./RNDForm"
 import { rndService } from "../services/rndService"
 import {formatDate,formatTime} from "../services/formatdate"
+import { toast } from "../ui/Toast"
 import axios from "axios"
 const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
@@ -68,9 +69,11 @@ function RND() {
         if (editingRnd) {
           // Update existing article
           await rndService.updateRnd(editingRnd.id, formData)
+          toast.success("R&D item updated successfully!")
         } else {
           // Create new article
           await rndService.createRnd(formData)
+          toast.success("R&D item created successfully!")
         }
         
         // Reload articles and close form
@@ -79,7 +82,9 @@ function RND() {
         setEditingRnd(null)
       } catch (error) {
         console.error('Failed to save:', error)
+        toast.error(error, { title: editingRnd ? "Failed to update R&D" : "Failed to create R&D" })
         setError('Failed to save. Please try again.')
+        throw error
       }
     }
   
@@ -92,6 +97,7 @@ function RND() {
         setShowRndForm(true)
       } catch (error) {
         console.error('Failed to load details:', error)
+        toast.error(error, { title: "Failed to load details" })
         setError('Failed to load details. Please try again.')
       }
     }
@@ -106,8 +112,10 @@ function RND() {
         await rndService.deleteRnd(eventId)
         // Remove article from state
         setRnd(prev => prev.filter(event => event.id !== eventId))
+        toast.success("R&D item deleted successfully!")
       } catch (error) {
         console.error('Failed to delete:', error)
+        toast.error(error, { title: "Failed to delete R&D item" })
         setError('Failed to delete. Please try again.')
       }
     }

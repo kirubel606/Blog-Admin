@@ -6,6 +6,7 @@ import {
 } from "lucide-react"
 import EventForm from "./EventForm"
 import { eventService } from "../services/eventService"
+import { toast } from "../ui/Toast"
 import { formatDate, formatTime } from "../services/formatdate"
 
 const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL
@@ -50,8 +51,10 @@ const handleEventSubmit = async (formDataToSend) => {
 
     if (editingEvent) {
       await eventService.updateEvent(editingEvent.id, formDataToSend);
+      toast.success("Event updated successfully!");
     } else {
       await eventService.createEvent(formDataToSend);
+      toast.success("Event created successfully!");
     }
 
     await loadEvents();
@@ -59,10 +62,12 @@ const handleEventSubmit = async (formDataToSend) => {
     setEditingEvent(null);
   } catch (error) {
     console.error("Failed to save event:", error);
+    toast.error(error, { title: editingEvent ? "Failed to update event" : "Failed to create event" });
     setError(
       error?.response?.data?.detail ||
         "Failed to save event. Please try again."
     );
+    throw error;
   }
 };
 
@@ -85,6 +90,7 @@ const handleEventSubmit = async (formDataToSend) => {
       setShowEventForm(true)
     } catch (error) {
       console.error("Failed to load event details:", error)
+      toast.error(error, { title: "Failed to load event details" })
       setError(error?.response?.data?.detail || "Failed to load event details. Please try again.")
     }
   }
@@ -96,8 +102,10 @@ const handleEventSubmit = async (formDataToSend) => {
       setError(null)
       await eventService.deleteEvent(eventId)
       setEvents((prev) => prev.filter((event) => event.id !== eventId))
+      toast.success("Event deleted successfully!")
     } catch (error) {
       console.error("Failed to delete event:", error)
+      toast.error(error, { title: "Failed to delete event" })
       setError(error?.response?.data?.detail || "Failed to delete event. Please try again.")
     }
   }

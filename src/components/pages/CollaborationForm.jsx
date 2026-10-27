@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { X } from "lucide-react"
+import { toast } from "../ui/Toast"
 
 
 function CollaborationForm({ onClose, onSubmit, initialData = null, categoryOptions = [] }) {
@@ -29,6 +30,14 @@ function CollaborationForm({ onClose, onSubmit, initialData = null, categoryOpti
   const handleImageChange = (e) => {
     const file = e.target.files[0]
     if (file) {
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please upload an image file", { title: "Invalid File Type" })
+        return
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Logo must be less than 5MB", { title: "Invalid File Size" })
+        return
+      }
       setFormData(prev => ({
         ...prev,
         logoFile: file,
@@ -39,6 +48,10 @@ function CollaborationForm({ onClose, onSubmit, initialData = null, categoryOpti
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    if (!initialData && !formData.logoFile) {
+      toast.error("Please upload a logo image", { title: "Validation Error" })
+      return
+    }
     onSubmit(formData)
   }
 

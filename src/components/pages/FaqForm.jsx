@@ -2,6 +2,7 @@
 "use client"
 import { useState } from "react"
 import { X } from "lucide-react"
+import { toast } from "../ui/Toast"
 
 const FaqForm = ({ initialData, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -18,6 +19,14 @@ const FaqForm = ({ initialData, onClose, onSubmit }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    if (!formData.question?.trim()) {
+      toast.error("FAQ question is required", { title: "Validation Error" })
+      return
+    }
+    if (!formData.answer?.trim()) {
+      toast.error("FAQ answer is required", { title: "Validation Error" })
+      return
+    }
     onSubmit(formData)
   }
 

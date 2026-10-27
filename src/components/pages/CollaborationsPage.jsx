@@ -4,6 +4,7 @@ import { Plus, Trash2, X, Pencil, AlertTriangle, ExternalLink } from "lucide-rea
 import { collaborationService } from "@/components/services/collaborationService" // You need to create this
 import CollaborationForm from "./CollaborationForm" // You need to create this
 import axios from 'axios'
+import { toast } from "../ui/Toast"
 const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
 function CollaborationsPage() {
@@ -53,16 +54,17 @@ function CollaborationsPage() {
       setError(null)
       if (selectedCollab) {
         await collaborationService.update(selectedCollab.id, formData)
-        alert("Successfully updated!")
+        toast.success("Collaboration updated successfully!")
       } else {
         await collaborationService.create(formData)
-        alert("Successfully created!")
+        toast.success("Collaboration created successfully!")
       }
       await loadCollaborations()
       setShowForm(false)
       setSelectedCollab(null)
     } catch (err) {
       console.error("Failed to save collaboration:", err)
+      toast.error(err, { title: selectedCollab ? "Failed to update collaboration" : "Failed to create collaboration" })
       setError(err?.response?.data?.detail || "Failed to save collaboration.")
     }
   }
@@ -78,9 +80,11 @@ function CollaborationsPage() {
       setShowDeleteModal(false)
       await collaborationService.delete(collabToDelete.id)
       setCollaborations(prev => prev.filter(c => c.id !== collabToDelete.id))
-      alert("Successfully deleted!")
+      setCollabToDelete(null)
+      toast.success("Collaboration deleted successfully!")
     } catch (err) {
       console.error("Failed to delete collaboration:", err)
+      toast.error(err, { title: "Failed to delete collaboration" })
       setError(err?.response?.data?.detail || "Failed to delete collaboration.")
     }
   }

@@ -4,6 +4,7 @@ import { useState,useEffect } from "react"
 import { Plus, X, Trash2 } from "lucide-react"
 import GalleryForm from "./GalleryForm"
 import { galleryService } from "../services/galleryService"
+import { toast } from "../ui/Toast"
 import {formatDate,formatTime} from "../services/formatdate"
 
 
@@ -47,18 +48,21 @@ function GalleryPage() {
           setGalleries(prev =>
             prev.map(g => g.id === editingGallery.id ? savedGallery : g)
           )
+          toast.success("Gallery item updated successfully!")
         } else {
           // Call backend and get created gallery
           savedGallery = await galleryService.createGallery(formData)
     
           // Add the fully created gallery to state
           setGalleries(prev => [...prev, savedGallery])
+          toast.success("Gallery item created successfully!")
         }
     
         setShowGalleryForm(false)
         setEditingGallery(null)
       } catch (error) {
         console.error("Failed to save gallery:", error)
+        toast.error(error, { title: editingGallery ? "Failed to update gallery" : "Failed to create gallery" })
         setError("Failed to save gallery. Please try again.")
       }
     }
@@ -80,8 +84,10 @@ function GalleryPage() {
         setGalleries(prev => prev.filter(g => g.id !== id))
         setSelectedGallery(null)
         setEditingGallery(null)
+        toast.success("Gallery item deleted successfully!")
       } catch (error) {
         console.error("Failed to delete gallery:", error)
+        toast.error(error, { title: "Failed to delete gallery" })
         setError("Failed to delete gallery. Please try again.")
       }
     }

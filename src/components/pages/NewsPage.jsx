@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { Plus, Search, Edit, Trash2, Eye, Calendar, User, Loader2, AlertCircle } from "lucide-react"
 import ArticleForm from "./ArticleForm"
 import { newsService } from "../services/newsService"
+import { toast } from "../ui/Toast"
 const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
 function NewsPage() {
@@ -83,9 +84,11 @@ function NewsPage() {
       if (editingArticle) {
         // Update existing article
         await newsService.updateNews(editingArticle.id, formData)
+        toast.success("Article updated successfully!")
       } else {
         // Create new article
         await newsService.createNews(formData)
+        toast.success("Article created successfully!")
       }
       
       // Reload articles and close form
@@ -94,7 +97,9 @@ function NewsPage() {
       setEditingArticle(null)
     } catch (error) {
       console.error('Failed to save article:', error)
+      toast.error(error, { title: editingArticle ? "Failed to update article" : "Failed to create article" })
       setError(error?.response?.data?.detail || 'Failed to save articles. Please try again.');
+      throw error
     }
   }
 
@@ -107,6 +112,7 @@ function NewsPage() {
       setShowArticleForm(true)
     } catch (error) {
       console.error('Failed to load article details:', error)
+      toast.error(error, { title: "Failed to load article details" })
       setError(error?.response?.data?.detail || 'Failed to load article details. Please try again.');
     }
   }
@@ -121,8 +127,10 @@ function NewsPage() {
       await newsService.deleteNews(articleId)
       // Remove article from state
       setArticles(prev => prev.filter(article => article.id !== articleId))
+      toast.success("Article deleted successfully!")
     } catch (error) {
       console.error('Failed to delete article:', error)
+      toast.error(error, { title: "Failed to delete article" })
       setError(error?.response?.data?.detail || 'Failed to delete article. Please try again.');
     }
   }

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { X } from "lucide-react"
 import axios from "axios"
+import { toast } from "../ui/Toast"
 
 const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
@@ -92,6 +93,30 @@ function EventForm({ event, onClose, onSubmit }) {
     setIsSubmitting(true)
     setError(null)
 
+    if (!formData.title?.trim()) {
+      const msg = "Event title is required."
+      setError(msg)
+      toast.error(msg, { title: "Validation Error" })
+      setIsSubmitting(false)
+      return
+    }
+
+    if (!formData.start_date) {
+      const msg = "Event start date is required."
+      setError(msg)
+      toast.error(msg, { title: "Validation Error" })
+      setIsSubmitting(false)
+      return
+    }
+
+    if (formData.end_date && new Date(formData.end_date) < new Date(formData.start_date)) {
+      const msg = "End date cannot be earlier than start date."
+      setError(msg)
+      toast.error(msg, { title: "Validation Error" })
+      setIsSubmitting(false)
+      return
+    }
+
     try {
       const payload = {
         ...formData,
@@ -102,6 +127,7 @@ function EventForm({ event, onClose, onSubmit }) {
       await onSubmit(payload)
     } catch (err) {
       console.error("Submit error:", err)
+      toast.error(err, { title: event ? "Failed to update event" : "Failed to create event" })
       setError(
         err?.response?.data?.detail ||
           "Something went wrong, please try again."

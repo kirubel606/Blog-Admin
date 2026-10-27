@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Dialog } from "@headlessui/react";
 import axiosInstance from "../../api"; // adjust path if needed
 import { useAuth } from "../../context/AuthContext" // adjust path
+import { toast } from "../ui/Toast";
 
 export default function UserFormModal({ isOpen, onClose, onSubmit, editingUser }) {
   const { user } = useAuth()
@@ -91,25 +92,30 @@ export default function UserFormModal({ isOpen, onClose, onSubmit, editingUser }
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!formData.username?.trim()) {
+      toast.error("Username is required", { title: "Validation Error" });
+      return;
+    }
+    if (!formData.email?.trim()) {
+      toast.error("Email address is required", { title: "Validation Error" });
+      return;
+    }
+    if (!editingUser && !formData.password) {
+      toast.error("Password is required for new user", { title: "Validation Error" });
+      return;
+    }
     if (!editingUser && formData.password !== confirmPassword) {
       setPasswordError("Passwords do not match");
+      toast.error("Passwords do not match", { title: "Validation Error" });
+      return;
+    }
+    if (editingUser && formData.password && formData.password !== confirmPassword) {
+      setPasswordError("Passwords do not match");
+      toast.error("Passwords do not match", { title: "Validation Error" });
       return;
     }
   
     setPasswordError("");
-    // Prepare FormData for file upload + other fields
-    const data = new FormData();
-    data.append("username", formData.username);
-    data.append("email", formData.email);
-    if (formData.password) data.append("password", formData.password);
-    if (formData.profile_image) data.append("profile_image", formData.profile_image);
-
-    // Append permissions as JSON string or separate entries depending on backend
-    data.append("permissions", JSON.stringify(formData.permissions));
-    // Append the new fields:
-    data.append("is_admin", formData.is_admin);
-    data.append("is_staff", formData.is_staff);
-    data.append("is_active", formData.is_active);
     onSubmit(formData);
   };
 

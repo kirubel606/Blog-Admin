@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { X } from "lucide-react"
+import { toast } from "../ui/Toast"
 
 function CategoryForm({ onClose, onSubmit, initialData = null }) {
   const [formData, setFormData] = useState({
@@ -31,12 +32,24 @@ function CategoryForm({ onClose, onSubmit, initialData = null }) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    if (!formData.name?.trim()) {
+      toast.error("Category English Name is required", { title: "Validation Error" })
+      return
+    }
     onSubmit(formData)
   }
 
   const handleImageChange = (e) => {
     const file = e.target.files[0]
     if (file) {
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please select a valid image file", { title: "Invalid File Type" })
+        return
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Image file must be under 5MB", { title: "Invalid File Size" })
+        return
+      }
       setFormData((prev) => ({
         ...prev,
         imageFile: file,

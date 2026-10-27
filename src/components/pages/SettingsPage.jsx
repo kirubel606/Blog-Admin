@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { Save } from "lucide-react"
 import axiosInstance from "../../api"
+import { toast } from "../ui/Toast"
 
 const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
@@ -86,16 +87,16 @@ export default function SettingsPage() {
   
 
   const handleSave = async () => {
-    if (!isValidMapIframe(settings.map_link)) {
-      alert("Please paste a valid Google Maps iframe with width 400 and height 300 (medium size).")
+    if (settings.map_link && !isValidMapIframe(settings.map_link)) {
+      toast.error("Please paste a valid Google Maps iframe with width 400 and height 300 (medium size).", { title: "Validation Error" })
       return
     }
     try {
       await axiosInstance.put(`${BACKEND_BASE_URL}/settings/${settings.id}/`, settings)
-      alert("Settings updated successfully!")
+      toast.success("Settings updated successfully!")
     } catch (err) {
       console.error("Failed to save settings:", err)
-      alert("Failed to update settings.")
+      toast.error(err, { title: "Failed to update settings" })
     }
   }
   const handleSaveabout = async () => {
@@ -103,7 +104,7 @@ export default function SettingsPage() {
       const { id, imageFile, image, ...updateData } = aboutus;
   
       if (!id) {
-        alert("No ID found for About Us entry!");
+        toast.error("No ID found for About Us entry!", { title: "Error" });
         return;
       }
   
@@ -122,16 +123,25 @@ export default function SettingsPage() {
         },
       });
   
-      alert("About Us updated successfully!");
+      toast.success("About Us updated successfully!");
     } catch (err) {
       console.error("Failed to save About Information:", err.response?.data || err.message);
-      alert("Failed to update About Information.");
+      toast.error(err, { title: "Failed to update About Information" });
     }
   };
   
   
 
   const handleChangepassword = async () => {
+    if (!settings.password) {
+      toast.error("Please enter a new password.", { title: "Validation Error" });
+      return;
+    }
+    if (settings.password !== settings.confirm_password) {
+      toast.error("Passwords do not match.", { title: "Validation Error" });
+      return;
+    }
+
     try {
       const updateData = {
         password: settings.password,
@@ -139,12 +149,12 @@ export default function SettingsPage() {
       // send PUT request to update user (password only)
       await axiosInstance.put("/users/user/", updateData);
   
-      alert("Password updated successfully!");
+      toast.success("Password updated successfully!");
       // Clear password fields after success
       setSettings((prev) => ({ ...prev, password: "", confirm_password: "" }));
     } catch (err) {
       console.error("Failed to update password:", err);
-      alert("Failed to update password. Try again.");
+      toast.error(err, { title: "Failed to update password" });
     }
   };
   
@@ -307,12 +317,12 @@ export default function SettingsPage() {
                 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{6,20}$/;
 
                 if (!passwordRegex.test(password)) {
-                  alert("Password must be 6-20 characters and include uppercase, lowercase, number, and special character.");
+                  toast.error("Password must be 6-20 characters and include uppercase, lowercase, number, and special character.", { title: "Weak Password" });
                   return;
                 }
 
                 if (password !== confirmPassword) {
-                  alert("Passwords do not match!");
+                  toast.error("Passwords do not match!", { title: "Validation Error" });
                   return;
                 }
 

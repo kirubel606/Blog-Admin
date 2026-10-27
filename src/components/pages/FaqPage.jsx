@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react"
 import { Plus, Pencil, Trash2, AlertTriangle, X } from "lucide-react"
 import { faqService } from "@/components/services/faqService"
+import { toast } from "../ui/Toast"
 import FaqForm from "./FaqForm"
 
 const FaqPage = () => {
@@ -32,14 +33,17 @@ const FaqPage = () => {
     try {
       if (selectedFaq) {
         await faqService.update(selectedFaq.id, formData)
+        toast.success("FAQ updated successfully!")
       } else {
         await faqService.create(formData)
+        toast.success("FAQ created successfully!")
       }
       await loadFaqs()
       setShowForm(false)
       setSelectedFaq(null)
     } catch (err) {
       console.error("Error saving FAQ", err)
+      toast.error(err, { title: selectedFaq ? "Failed to update FAQ" : "Failed to create FAQ" })
       setError("Failed to save FAQ")
     }
   }
@@ -54,8 +58,11 @@ const FaqPage = () => {
       await faqService.delete(faqToDelete.id)
       setFaqs((prev) => prev.filter((item) => item.id !== faqToDelete.id))
       setShowDeleteModal(false)
+      setFaqToDelete(null)
+      toast.success("FAQ deleted successfully!")
     } catch (err) {
       console.error("Error deleting FAQ", err)
+      toast.error(err, { title: "Failed to delete FAQ" })
       setError("Failed to delete FAQ")
     }
   }

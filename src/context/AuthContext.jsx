@@ -75,7 +75,17 @@ export function AuthProvider({ children }) {
       body: JSON.stringify({ username, password }),
     })
 
-    if (!res.ok) throw new Error("Login failed")
+    if (!res.ok) {
+      let errorData
+      try {
+        errorData = await res.json()
+      } catch {
+        errorData = { detail: "Invalid credentials or login failed." }
+      }
+      const err = new Error(errorData.detail || errorData.message || "Login failed")
+      err.response = { status: res.status, data: errorData }
+      throw err
+    }
 
     const data = await res.json()
     setAccessToken(data.access)

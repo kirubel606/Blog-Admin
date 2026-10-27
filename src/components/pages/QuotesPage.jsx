@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Plus, Trash2, X, Pencil, AlertTriangle, ExternalLink } from "lucide-react"
 import { quoteService } from "@/components/services/quoteService" // You need to implement this
 import QuoteForm from "./QuoteForm" // You need to implement this
+import { toast } from "../ui/Toast"
 
 function QuotesPage() {
   const [quotes, setQuotes] = useState([])
@@ -45,18 +46,21 @@ function QuotesPage() {
   const handleSubmit = async (formData) => {
     try {
       setError(null)
+      const label = formMode === "testimony" ? "Testimony" : "Quote"
       if (selectedQuote) {
         await quoteService.update(selectedQuote.id, formData)
-        alert("Successfully updated!")
+        toast.success(`${label} updated successfully!`)
       } else {
         await quoteService.create(formData)
-        alert("Successfully created!")
+        toast.success(`${label} created successfully!`)
       }
       await loadQuotes()
       setShowForm(false)
       setSelectedQuote(null)
     } catch (err) {
       console.error("Failed to save quote:", err)
+      const label = formMode === "testimony" ? "Testimony" : "Quote"
+      toast.error(err, { title: selectedQuote ? `Failed to update ${label.toLowerCase()}` : `Failed to create ${label.toLowerCase()}` })
       setError(err?.response?.data?.detail || "Failed to save quote.")
     }
   }
@@ -73,9 +77,11 @@ function QuotesPage() {
       await quoteService.delete(quoteToDelete.id)
       setQuotes(prev => prev.filter(q => q.id !== quoteToDelete.id))
       setTestimonies(prev => prev.filter(t => t.id !== quoteToDelete.id))
-      alert("Successfully deleted!")
+      setQuoteToDelete(null)
+      toast.success("Item deleted successfully!")
     } catch (err) {
       console.error("Failed to delete quote:", err)
+      toast.error(err, { title: "Failed to delete item" })
       setError(err?.response?.data?.detail || "Failed to delete quote.")
     }
   }

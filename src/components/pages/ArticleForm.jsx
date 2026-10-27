@@ -3,6 +3,7 @@ import { X, Loader2 } from "lucide-react"
 import { CKEditor } from '@ckeditor/ckeditor5-react'
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
 import axios from 'axios'
+import { toast } from "../ui/Toast"
 const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api"
 
 function ArticleForm({ article, onClose, onSubmit, entityName = "Article" }) {
@@ -99,13 +100,17 @@ const handleSubmit = async (e) => {
 
   try {
     if (!formData.title || formData.title.trim().length < 10) {
-      setError(`${entityName} title must be at least 10 characters long.`)
+      const msg = `${entityName} title must be at least 10 characters long.`
+      setError(msg)
+      toast.error(msg, { title: "Validation Error" })
       setIsSubmitting(false)
       return
     }
 
     if (!formData.category) {
-      setError('Please select a category.')
+      const msg = 'Please select a category.'
+      setError(msg)
+      toast.error(msg, { title: "Validation Error" })
       setIsSubmitting(false)
       return
     }
@@ -128,6 +133,7 @@ const handleSubmit = async (e) => {
     await onSubmit(submitData)
   } catch (err) {
     console.error('Form submission error:', err)
+    toast.error(err, { title: `Failed to save ${entityName.toLowerCase()}` })
     const msg = err?.response?.data?.detail || 
       (typeof err?.response?.data?.message === 'string' ? err.response.data.message : null) || 
       (err?.response?.data ? JSON.stringify(err.response.data) : null) || 
@@ -146,12 +152,14 @@ const handleSubmit = async (e) => {
       // Validate file size (e.g., max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         setError('Cover image must be less than 5MB')
+        toast.error('Cover image must be less than 5MB', { title: "Invalid File Size" })
         return
       }
       
       // Validate file type
       if (!file.type.startsWith('image/')) {
         setError('Cover image must be an image file')
+        toast.error('Cover image must be an image file', { title: "Invalid File Type" })
         return
       }
 
@@ -170,10 +178,12 @@ const handleSubmit = async (e) => {
     const validFiles = files.filter(file => {
       if (file.size > 5 * 1024 * 1024) {
         setError('Each image must be less than 5MB')
+        toast.error(`"${file.name}" must be less than 5MB`, { title: "Invalid Image Size" })
         return false
       }
       if (!file.type.startsWith('image/')) {
         setError('All files must be images')
+        toast.error(`"${file.name}" is not an image file`, { title: "Invalid Image Type" })
         return false
       }
       return true
@@ -193,6 +203,7 @@ const handleSubmit = async (e) => {
     const file = e.target.files[0];
     if (!file || file.type !== 'application/pdf') {
       setError('Only PDF files are allowed');
+      toast.error('Only PDF files are allowed', { title: "Invalid Document Type" });
       return;
     }
   

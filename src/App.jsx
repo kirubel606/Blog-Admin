@@ -3,16 +3,22 @@
 import { useState } from "react"
 import LoginPage from "./components/LoginPage.jsx"
 import Dashboard from "./components/Dashboard.jsx"
-import { useAuth } from "./context/AuthContext.jsx" // adjust path
+import { useAuth } from "./context/AuthContext.jsx"
+import { ToastContainer } from "./components/ui/Toast.jsx"
 
 function App() {
-  const {logout,isAuthenticated,user} = useAuth()
+  const { logout, isAuthenticated, user } = useAuth()
 
-  if (!isAuthenticated) {
-    return <LoginPage />
-  }
-
-  return <Dashboard user={user} onLogout={logout}/>
+  return (
+    <>
+      <ToastContainer />
+      {!isAuthenticated ? (
+        <LoginPage />
+      ) : (
+        <Dashboard user={user} onLogout={logout} />
+      )}
+    </>
+  )
 }
 
 export default App

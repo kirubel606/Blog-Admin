@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { X } from "lucide-react"
 import axios from "axios"
+import { toast } from "../ui/Toast"
 
 const CLASSIFICATION_OPTIONS = [
   { value: "publication", label: "Publication" },
@@ -71,6 +72,10 @@ function ResourceForm({ Resource = null, onClose, onSubmit }) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    if (!formData.title?.trim()) {
+      toast.error("Resource title is required", { title: "Validation Error" })
+      return
+    }
     onSubmit(formData)
   }
 

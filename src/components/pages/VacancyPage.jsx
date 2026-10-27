@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Plus, X, ExternalLink } from "lucide-react"
 import VacancyForm from "./VacancyForm"
+import { toast } from "../ui/Toast"
 
 // Mock data - replace with actual API calls
 const mockVacancies = [
@@ -33,6 +34,7 @@ function VacancyPage() {
   const handleVacancySubmit = (formData) => {
     // Handle form submission
     console.log(formData)
+    toast.success("Vacancy created successfully!")
     setShowVacancyForm(false)
   }
 

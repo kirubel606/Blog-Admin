@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { Plus, Search, Edit, Trash2, Eye, Calendar, User, Loader2, AlertCircle } from "lucide-react"
 import ArticleForm from "./ArticleForm"
 import { blogService } from "../services/blogService"
+import { toast } from "../ui/Toast"
 
 const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api"
 
@@ -80,8 +81,10 @@ function BlogsPage() {
 
       if (editingBlog) {
         await blogService.updateBlog(editingBlog.id, formData)
+        toast.success("Blog updated successfully!")
       } else {
         await blogService.createBlog(formData)
+        toast.success("Blog created successfully!")
       }
 
       await loadBlogs()
@@ -89,6 +92,7 @@ function BlogsPage() {
       setEditingBlog(null)
     } catch (err) {
       console.error("Failed to save blog:", err)
+      toast.error(err, { title: editingBlog ? "Failed to update blog" : "Failed to create blog" })
       setError(err?.response?.data?.detail || err?.response?.data?.message || "Failed to save blog. Please try again.")
       throw err
     }
@@ -102,6 +106,7 @@ function BlogsPage() {
       setShowBlogForm(true)
     } catch (err) {
       console.error("Failed to load blog details:", err)
+      toast.error(err, { title: "Failed to load blog details" })
       setError(err?.response?.data?.detail || err?.response?.data?.message || "Failed to load blog details. Please try again.")
     }
   }
@@ -115,8 +120,10 @@ function BlogsPage() {
       setError(null)
       await blogService.deleteBlog(blogId)
       setBlogs((prev) => prev.filter((blog) => blog.id !== blogId))
+      toast.success("Blog post deleted successfully!")
     } catch (err) {
       console.error("Failed to delete blog:", err)
+      toast.error(err, { title: "Failed to delete blog" })
       setError(err?.response?.data?.detail || err?.response?.data?.message || "Failed to delete blog. Please try again.")
     }
   }

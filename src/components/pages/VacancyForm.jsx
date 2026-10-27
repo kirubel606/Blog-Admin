@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { X } from "lucide-react"
+import { toast } from "../ui/Toast"
 
 function VacancyForm({ onClose, onSubmit }) {
   const [formData, setFormData] = useState({
@@ -14,6 +15,14 @@ function VacancyForm({ onClose, onSubmit }) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    if (!formData.title?.trim()) {
+      toast.error("Job title is required", { title: "Validation Error" })
+      return
+    }
+    if (!formData.location?.trim()) {
+      toast.error("Location is required", { title: "Validation Error" })
+      return
+    }
     onSubmit(formData)
   }
 

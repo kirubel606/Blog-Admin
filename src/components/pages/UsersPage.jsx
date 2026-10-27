@@ -3,6 +3,7 @@ import UserFormModal from "./userForm" // adjust path as needed
 import { useState,useEffect } from "react"
 import { Plus, Search } from "lucide-react"
 import axiosInstance from "../../api"  // adjust path if needed
+import { toast } from "../ui/Toast"
 const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
 
@@ -73,15 +74,16 @@ function UsersPage() {
         method,
         url,
         data,
-        
       });
       setIsModalOpen(false);
       setEditingUser(null);
       setError(null);
       fetchUsers();
+      toast.success(editingUser ? "User updated successfully!" : "User created successfully!");
     } catch (err) {
-      setError(err.response.data.detail);
       console.error("Error saving user", err);
+      toast.error(err, { title: editingUser ? "Failed to update user" : "Failed to create user" });
+      setError(err?.response?.data?.detail || "Error saving user");
     }
   };
   
@@ -91,9 +93,11 @@ function UsersPage() {
       await axiosInstance.delete(`/users/user/delete/${confirmDeleteUserId}/`);
       fetchUsers();
       setError(null);
+      toast.success("User deleted successfully!");
     } catch (err) {
-      setError(err?.response?.data?.detail || "Delete failed");
       console.error("Delete failed", err);
+      toast.error(err, { title: "Failed to delete user" });
+      setError(err?.response?.data?.detail || "Delete failed");
     } finally {
       setConfirmDeleteUserId(null); // Close modal
     }
