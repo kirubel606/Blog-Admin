@@ -25,6 +25,9 @@ export default function SettingsPage() {
     instagram: "",
     youtube: "",
     linkdin: "",
+    telegram: "",
+    tiktok: "",
+    whatsapp: "",
     location: "",
     location_am: "",
     map_link: "",
@@ -230,6 +233,9 @@ export default function SettingsPage() {
                 <Input label="Instagram" name="instagram" value={settings.instagram} onChange={handleChange} />
                 <Input label="Youtube" name="youtube" value={settings.youtube} onChange={handleChange} />
                 <Input label="Linkdin" name="linkdin" value={settings.linkdin} onChange={handleChange} />
+                <Input label="Telegram" name="telegram" value={settings.telegram} onChange={handleChange} />
+                <Input label="Tiktok" name="tiktok" value={settings.tiktok} onChange={handleChange} />
+                <Input label="Whatsapp" name="whatsapp" value={settings.whatsapp} onChange={handleChange} />
                 <Input label="Location" name="location" value={settings.location} onChange={handleChange} />
                 <Input label="Location in Amharic" name="location_am" value={settings.location_am} onChange={handleChange} />
               </div>
