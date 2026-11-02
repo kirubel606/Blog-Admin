@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { X } from "lucide-react"
 import { toast } from "../ui/Toast"
+import { getGalleryImageUrl, handleGalleryImageError } from "../services/galleryService"
 
 function GalleryForm({ onClose, onSubmit, initialData = null }) {
   const [formData, setFormData] = useState({
@@ -196,6 +197,7 @@ function GalleryForm({ onClose, onSubmit, initialData = null }) {
               <option value="SHOWROOM">Showroom</option>
               <option value="SUMMER_CAMP">Summer Camp</option>
               <option value="STARTUP">Startup</option>
+              <option value="UNIPOD">Unipod</option>
               <option value="MOU">MOU</option>
             </select>
           </div>
@@ -227,7 +229,8 @@ function GalleryForm({ onClose, onSubmit, initialData = null }) {
                   <div key={idx} className="relative group">
                     <div className="aspect-w-4 aspect-h-3 rounded-lg overflow-hidden">
                       <img
-                        src={url}
+                        src={getGalleryImageUrl(url)}
+                        onError={(e) => handleGalleryImageError(e, url)}
                         alt={`Existing Image ${idx}`}
                         className="w-full h-full object-cover"
                       />

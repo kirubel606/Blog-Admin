@@ -3,7 +3,11 @@
 import { useState,useEffect } from "react"
 import { Plus, X, Trash2 } from "lucide-react"
 import GalleryForm from "./GalleryForm"
-import { galleryService } from "../services/galleryService"
+import {
+  galleryService,
+  getGalleryImageUrl,
+  handleGalleryImageError,
+} from "../services/galleryService"
 import { toast } from "../ui/Toast"
 import {formatDate,formatTime} from "../services/formatdate"
 
@@ -29,8 +33,8 @@ function GalleryPage() {
         // Ensure we always have an array
         setGalleries(Array.isArray(data) ? data : [])
       } catch (error) {
-        console.error('Failed to load events:', error)
-        setError('Failed to load events. Please try again.')
+        console.error('Failed to load gallery:', error)
+        setError('Failed to load gallery. Please try again.')
         setGalleries([]) // Set empty array on error
       } finally {
         setLoading(false)
@@ -115,6 +119,8 @@ function GalleryPage() {
             <option value="DATA_CENTER">Data Center</option>
             <option value="SHOWROOM">Showroom</option>
             <option value="SUMMER_CAMP">Summer Camp</option>
+            <option value="STARTUP">Startup</option>
+            <option value="UNIPOD">Unipod</option>
             <option value="MOU">MOU</option>
           </select>
           <button
@@ -148,10 +154,11 @@ function GalleryPage() {
             </div>
             <div className="p-4">
               <div className="grid grid-cols-2 gap-2">
-                {gallery.images.slice(0, 4).map((image) => (
-                  <div key={image.id} className="aspect-w-4 aspect-h-3 rounded-lg overflow-hidden">
+                {(gallery.images || []).slice(0, 4).map((image) => (
+                  <div key={image.id || image} className="aspect-w-4 aspect-h-3 rounded-lg overflow-hidden">
                     <img
-                      src={image.image}
+                      src={getGalleryImageUrl(image)}
+                      onError={(e) => handleGalleryImageError(e, image)}
                       alt={image.caption || "Gallery image"}
                       className="w-full h-full object-cover"
                     />
@@ -209,7 +216,7 @@ function GalleryPage() {
                   discription: editingGallery.discription,
                   discription_am: editingGallery.discription_am,
                   category: editingGallery.category,
-                  images: editingGallery.images.map((img) => img.image)
+                  images: (editingGallery.images || []).map((img) => img.image || img)
                 }
               : null
           }
@@ -232,11 +239,12 @@ function GalleryPage() {
             <div className="p-6">
               <p className="mb-4 text-gray-700">{selectedGallery.caption}</p>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {selectedGallery.images.map((image) => (
-                  <div key={image.id} className="relative group">
+                {(selectedGallery.images || []).map((image) => (
+                  <div key={image.id || image} className="relative group">
                     <div className="aspect-w-4 aspect-h-3 rounded-lg overflow-hidden">
                       <img
-                        src={image.image}
+                        src={getGalleryImageUrl(image)}
+                        onError={(e) => handleGalleryImageError(e, image)}
                         alt={image.caption || "Gallery image"}
                         className="w-full h-full object-cover"
                       />
